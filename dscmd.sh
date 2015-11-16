@@ -16,8 +16,8 @@ echo -e "Build distribution tool for SenchaCMD v1.0.0";
 
 # --- config ---
 
-CONFIG_FILE=.dscmd-config
-AGENTS_FILE=.dscmd-agents
+CONFIG_FILE=".dscmd-config";
+AGENTS_FILE=".dscmd-agents";
 
 # --- global variables ---
 
@@ -75,7 +75,7 @@ function save_agents_list {
         fi;
     done;
 
-    if [[ -n "$result" ]] ; then
+    if [[ -n "$result" ]]; then
         echo "$result" > "$AGENTS_FILE";
     else
         > "$AGENTS_FILE";
@@ -130,16 +130,27 @@ function get_free_agent {
     done;
 }
 
+#
+# @param {Number} $1 agent index
+#
 function set_agent_free {
-    AGENTS_PIDS_ARRAY["$1"]="0";
+    AGENTS_PIDS_ARRAY["$1"]=0;
     AGENTS_STATUSES_ARRAY["$1"]="$AGENT_FREE";
 }
 
+#
+# @param {Number} $1 agent index
+# @param {Number} $2 agent process pid
+#
 function set_agent_busy {
     AGENTS_PIDS_ARRAY["$1"]="$2";
     AGENTS_STATUSES_ARRAY["$1"]="$AGENT_BUSY";
 }
 
+#
+# @param {Number} $1 agent index
+# @param {String} $2 application name
+#
 function run_build_on_agent {
     parse_agent "${AGENTS_ARRAY[$1]}";
 
@@ -183,7 +194,7 @@ function f_init {
         fi;
     done;
 
-    echo -e "CMD_PATH=$cmd_path_user" > "$CONFIG_FILE"
+    echo -e "CMD_PATH=$cmd_path_user" > "$CONFIG_FILE";
 
     echo -e "\nSaved to $CONFIG_FILE:";
     cat "$CONFIG_FILE";
@@ -297,7 +308,7 @@ function f_remove_agent {
 
     read_agents_list;
 
-    local i=0
+    local i=0;
     for agent in "${AGENTS_ARRAY[@]}"; do
         parse_agent "$agent";
         if [[ "$1" = "${parse_agent_result[0]}" ]] || [[ "$1" = "--all" ]]; then
@@ -345,7 +356,7 @@ function f_build {
     echo -e "Build applications:\n";
 
     if [[ -z "$1" ]]; then
-        echo "ERROR: application list missed."
+        echo -e "ERROR: application list missed.";
         exit 1;
     fi;
 
@@ -354,7 +365,7 @@ function f_build {
     read_agents_list;
 
     if [[ "$AGENTS_ARRAY_COUNT" == "0" ]]; then
-        echo "ERROR: no agents."
+        echo -e "ERROR: no agents.";
         exit 1;
     fi;
 

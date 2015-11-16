@@ -30,6 +30,7 @@ Usage:
 ## Usage
 
 ### Add agents (Ubuntu-based host)
+* [Copy ssh key](https://www.digitalocean.com/community/tutorials/how-to-set-up-ssh-keys--2) to agent;
 * Run `$./dscmd.sh add-agent`
 
 ### Run distributed build
