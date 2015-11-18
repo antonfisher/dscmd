@@ -52,10 +52,10 @@ for each applications {
 * 1.0.0 Initial release
 
 ## ToDo
-* [X] Configurable application path;
-* [_] Check application's build exit status;
-* [_] Show build time;
-* [_] Script command suggestions.
+- [x] Configurable application path;
+- [ ] Check application's build exit status;
+- [ ] Show build time;
+- [ ] Script command suggestions.
 
 ## License
 
