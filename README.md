@@ -38,18 +38,24 @@ Usage:
 
 ## Under hood
 ```
-while (agents) {
-    _ssh_ -> _apt-get install_ -> _install sencha cmd_
+for each agents {
+    ssh --> apt-get install --> install sencha cmd
 }
 
-while (applications) {
-    _rsync_ -> _sencha app build_ -> _rsync_
+for each applications {
+    rsync --> sencha app build --> rsync
 }
 ```
 
 ## Release History
 
 * 1.0.0 Initial release
+
+## ToDo
+* [X] Configurable application path;
+* [_] Check application's build exit status;
+* [_] Show build time;
+* [_] Script command suggestions.
 
 ## License
 
