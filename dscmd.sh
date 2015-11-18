@@ -23,6 +23,8 @@ AGENTS_FILE=".dscmd-agents";
 
 CMD_PATH="";
 CMD_PATH_DAFAULT="~/bin/Sencha/Cmd/sencha";
+APPS_PATH="";
+APPS_PATH_DAFAULT="./pages";
 AGENT_FREE="1";
 AGENT_BUSY="2";
 #AGENT_ERROR="0";
@@ -39,6 +41,17 @@ function get_full_file_path {
     local user_home_sed="s#~#$user_home#g";
     local rel_path=$( echo "$1" | sed "$user_home_sed" );
     get_full_file_path_result=$( readlink -e "$rel_path" );
+}
+
+function check_directory_exits {
+    if [[ -d "$1" ]]; then
+        return 0;
+    else
+        if [[ "$2" == 1 ]]; then
+            echo -e "Directory '$1' does not exist. Please try again.";
+        fi;
+        return 1;
+    fi;
 }
 
 # --- util functions ---
@@ -165,7 +178,7 @@ function run_build_on_agent {
     rsync_agent "${parse_agent_result[1]}@${parse_agent_result[0]}";
 
     ssh -Cq "${parse_agent_result[1]}@${parse_agent_result[0]}" \
-        "cd ~/dscmd/pages/$2; ~/bin/Sencha/Cmd/sencha --plain --quiet --time app build;";
+        "cd ~/dscmd/$APPS_PATH/$2; ~/bin/Sencha/Cmd/sencha --plain --quiet --time app build;";
     if [[ $? != 0 ]]; then
         echo "ERROR: failed build application '$2' on ${parse_agent_result[1]}@${parse_agent_result[0]}.";
         return 1;
@@ -181,14 +194,37 @@ function run_build_on_agent {
 function f_init {
     echo -e "Master initialization.\n";
 
+    local text;
     local valid_directory;
+    local apps_path_user;
+    local cmd_path_user;
 
     read_config_file;
 
     unset valid_directory;
     while [[ -z "$valid_directory" ]]; do
+        text="Enter path to applications folder (default: $APPS_PATH_DAFAULT or previous uses) [ENTER]: ";
+        read -e -p "$text" apps_path_user;
+        get_full_file_path "$apps_path_user";
+        if [[ -z "$apps_path_user" ]]; then
+            valid_directory=1;
+            if [[ -z "$APPS_PATH" ]]; then
+                apps_path_user="$APPS_PATH_DAFAULT";
+            else
+                apps_path_user="$APPS_PATH";
+            fi;
+        elif [[ "$apps_path_user" == .* || "$apps_path_user" == /* || "$apps_path_user" == ~* ]]; then
+            echo -e "ERROR: only local directories allowed...";
+        elif check_directory_exits "$get_full_file_path_result" 1; then
+            valid_directory=1;
+        fi;
+    done;
+    apps_path_user="${apps_path_user%/}";
+
+    unset valid_directory;
+    while [[ -z "$valid_directory" ]]; do
         text="Enter path to SenchaCMD on agents (default: $CMD_PATH_DAFAULT or previous uses) [ENTER]: ";
-        read -p "$text" cmd_path_user;
+        read -e -p "$text" cmd_path_user;
         if [[ -z "$cmd_path_user" ]]; then
             valid_directory=1;
             if [[ -z "$CMD_PATH" ]]; then
@@ -201,7 +237,7 @@ function f_init {
         fi;
     done;
 
-    save_config_file "CMD_PATH=$cmd_path_user";
+    save_config_file "APPS_PATH=$apps_path_user\nCMD_PATH=$cmd_path_user";
 
     echo -e "\nSaved to $CONFIG_FILE:";
     cat "$CONFIG_FILE";
@@ -375,6 +411,8 @@ function f_build {
         echo -e "ERROR: no agents.";
         exit 1;
     fi;
+
+    read_config_file;
 
     for application in "${APPLICATIONS_ARRAY[@]}"; do
         runned=0;
