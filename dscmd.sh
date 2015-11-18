@@ -44,10 +44,16 @@ function get_full_file_path {
 # --- util functions ---
 
 function read_config_file {
+    touch "$CONFIG_FILE";
     while IFS='' read -r line || [[ -n "$line" ]]; do
         IFS='=' read -a line_array <<< "$line";
         eval "${line_array[0]}=${line_array[1]}";
     done < "$CONFIG_FILE";
+}
+
+function save_config_file {
+    touch "$CONFIG_FILE";
+    echo -e "$1" > "$CONFIG_FILE";
 }
 
 function read_agents_list {
@@ -181,7 +187,8 @@ function f_init {
 
     unset valid_directory;
     while [[ -z "$valid_directory" ]]; do
-        read -p "Enter path to SenchaCMD (default: $CMD_PATH_DAFAULT or previous uses) [ENTER]: " cmd_path_user;
+        text="Enter path to SenchaCMD on agents (default: $CMD_PATH_DAFAULT or previous uses) [ENTER]: ";
+        read -p "$text" cmd_path_user;
         if [[ -z "$cmd_path_user" ]]; then
             valid_directory=1;
             if [[ -z "$CMD_PATH" ]]; then
@@ -194,7 +201,7 @@ function f_init {
         fi;
     done;
 
-    echo -e "CMD_PATH=$cmd_path_user" > "$CONFIG_FILE";
+    save_config_file "CMD_PATH=$cmd_path_user";
 
     echo -e "\nSaved to $CONFIG_FILE:";
     cat "$CONFIG_FILE";
