@@ -34,6 +34,8 @@ declare -a AGENTS_STATUSES_ARRAY;
 declare -a AGENTS_PIDS_ARRAY;
 declare -a APPLICATIONS_ARRAY;
 
+AGENTS_ARRAY_COUNT=0;
+
 # --- common functions ---
 
 function get_full_file_path {
@@ -70,10 +72,13 @@ function save_config_file {
 }
 
 function read_agents_list {
+    touch "$AGENTS_FILE";
+    AGENTS_ARRAY_COUNT="0";
     while IFS='' read -r line || [[ -n "$line" ]]; do
         AGENTS_ARRAY["$AGENTS_ARRAY_COUNT"]="$line";
         AGENTS_STATUSES_ARRAY["$AGENTS_ARRAY_COUNT"]="$AGENT_FREE";
         AGENTS_PIDS_ARRAY["$AGENTS_ARRAY_COUNT"]=0;
+        AGENTS_ARRAY_COUNT=$(( $AGENTS_ARRAY_COUNT+1 ));
     done < "$AGENTS_FILE";
 }
 
