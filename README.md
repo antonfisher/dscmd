@@ -3,14 +3,6 @@
 Build distribution tool for SenchaCMD.
 
 ```
-app1 >--                 --> ssh node1 (sencha app build) --
-        \               /                                   \
-app2 >--+--> dscmd.sh --                                     --> local build folder
-        /               \                                   /
-app3 >--                 --> ssh node2 (sencha app build) --
-```
-
-```
 $./dscmd.sh 
 Build distribution tool for SenchaCMD v0.1.1 [beta]
 Usage:
@@ -21,6 +13,8 @@ Usage:
   ./dscmd.sh agents-test
   ./dscmd.sh build <application1,application2,...>
 ```
+
+![Principle pic](https://github.com/antonfisher/dscmd/raw/master/docs/dscmd-principle.png)
 
 ## Installation
 
