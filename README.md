@@ -12,7 +12,7 @@ app3 >--                 --> ssh node2 (sencha app build) --
 
 ```
 $./dscmd.sh 
-Build distribution tool for SenchaCMD v1.0.0
+Build distribution tool for SenchaCMD v0.1.1 [beta]
 Usage:
   ./dscmd.sh init
   ./dscmd.sh add-agent
@@ -24,22 +24,23 @@ Usage:
 
 ## Installation
 
-* Copy script to your Sencha applications workspace
-* Run `$./dscmd.sh init`
+* Copy script to your Sencha applications workspace;
+* Run `$./dscmd.sh init`.
 
 ## Usage
 
 ### Add agents (Ubuntu-based host)
 * [Copy ssh key](https://www.digitalocean.com/community/tutorials/how-to-set-up-ssh-keys--2) to agent;
-* Run `$./dscmd.sh add-agent`
+* Run `$./dscmd.sh add-agent`.
 
 ### Run distributed build
-* Run `$./dscmd.sh build applicationName1,applicationName2`
+* Run `$./dscmd.sh build --all` to build all application in applications folder;
+* Or run `$./dscmd.sh build applicationName1,applicationName2`.
 
 ## Under hood
 ```
 for each agents {
-    ssh --> apt-get install --> install sencha cmd
+    copy ssh key --> ssh --> apt-get install --> install sencha cmd
 }
 
 for each applications {
@@ -48,17 +49,21 @@ for each applications {
 ```
 
 ## Release History
-
-* 1.0.0 Initial release
+* 0.1.1 Beta release:
+    * Support "build --all" flag;
+    * Fix: add-agent
+* 0.1.0 Initial release.
 
 ## ToDo
 - [x] Configurable application path;
+- [x] Show list of applications after script init;
+- [x] Build all applicaitons in folder;
+- [ ] Show build progress;
 - [ ] Check application's build exit status;
 - [ ] Show build time;
 - [ ] Script command suggestions.
 
 ## License
-
 Copyright (c) 2015 Anton Fisher <a.fschr@gmail.com>
 
 MIT License. Free use and change.

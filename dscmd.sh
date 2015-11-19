@@ -12,7 +12,7 @@
 #
 #-------------------------------------------------------------------------------------
 
-echo -e "Build distribution tool for SenchaCMD v1.0.0";
+echo -e "Build distribution tool for SenchaCMD v0.1.1 [beta]";
 
 # --- config ---
 
