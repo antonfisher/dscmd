@@ -56,6 +56,10 @@ function check_directory_exits {
     fi;
 }
 
+function ls_directory {
+    ls_directory_result=$( ls -m "$1" | sed 's#, #,#g' | tr -d '\n' );
+}
+
 # --- util functions ---
 
 function read_config_file {
@@ -225,6 +229,8 @@ function f_init {
         fi;
     done;
     apps_path_user="${apps_path_user%/}";
+    ls_directory "$apps_path_user";
+    echo -e "Found applications in '$apps_path_user': $ls_directory_result";
 
     unset valid_directory;
     while [[ -z "$valid_directory" ]]; do
@@ -403,12 +409,22 @@ function f_agents_test {
 function f_build {
     echo -e "Build applications:\n";
 
-    if [[ -z "$1" ]]; then
-        echo -e "ERROR: application list missed.";
+    read_config_file;
+
+    apps_list="$1";
+
+    if [[ "$1" = "--all" ]]; then
+        ls_directory "$APPS_PATH";
+        apps_list="$ls_directory_result";
+    fi;
+
+    if [[ -z "$apps_list" ]]; then
+        echo -e "ERROR: application list missed / no application found.";
+        echo -e "Usage: ./dscmd.sh build [--all] <application1,application2,...>";
         exit 1;
     fi;
 
-    IFS=',' read -a APPLICATIONS_ARRAY <<< "$1";
+    IFS=',' read -a APPLICATIONS_ARRAY <<< "$apps_list";
 
     read_agents_list;
 
@@ -416,8 +432,6 @@ function f_build {
         echo -e "ERROR: no agents.";
         exit 1;
     fi;
-
-    read_config_file;
 
     for application in "${APPLICATIONS_ARRAY[@]}"; do
         runned=0;
@@ -458,7 +472,7 @@ function f_usage {
     echo -e "  ./dscmd.sh remove-agent [--all]";
     echo -e "  ./dscmd.sh agents-list";
     echo -e "  ./dscmd.sh agents-test";
-    echo -e "  ./dscmd.sh build <application1,application2,...>";
+    echo -e "  ./dscmd.sh build [--all] <application1,application2,...>";
 }
 
 # --- main ---
