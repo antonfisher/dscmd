@@ -1,6 +1,6 @@
-# dscmd.sh
+# Build distribution tool for SenchaCMD
 
-Build distribution tool for SenchaCMD.
+![Principle pic](https://github.com/antonfisher/dscmd/raw/master/docs/dscmd-principle.png)
 
 ```
 $./dscmd.sh 
@@ -14,11 +14,9 @@ Usage:
   ./dscmd.sh build <application1,application2,...>
 ```
 
-![Principle pic](https://github.com/antonfisher/dscmd/raw/master/docs/dscmd-principle.png)
-
 ## Installation
 
-* Copy script to your Sencha applications workspace;
+* Copy `dscmd.sh` script to your Sencha applications workspace;
 * Run `$./dscmd.sh init`.
 
 ## Usage
@@ -44,8 +42,8 @@ for each applications {
 
 ## Release History
 * 0.1.1 Beta release:
-    * Support "build --all" flag;
-    * Fix: add-agent
+    * Support `build --all` flag;
+    * Fix: `add-agent`
 * 0.1.0 Initial release.
 
 ## ToDo
