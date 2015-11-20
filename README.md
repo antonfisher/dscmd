@@ -50,10 +50,12 @@ for each applications {
 - [x] Configurable application path;
 - [x] Show list of applications after script init;
 - [x] Build all applicaitons in folder;
+- [ ] Support for multi add-agent.
 - [ ] Show build progress;
 - [ ] Check application's build exit status;
 - [ ] Show build time;
 - [ ] Script command suggestions.
+- [ ] Agent monitoring script.
 
 ## License
 Copyright (c) 2015 Anton Fisher <a.fschr@gmail.com>

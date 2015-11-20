@@ -39,9 +39,12 @@ AGENTS_ARRAY_COUNT=0;
 # --- common functions ---
 
 function get_full_file_path {
-    local user_home=$( echo "$HOME" | sed 's#/#\\\/#g' );
-    local user_home_sed="s#~#$user_home#g";
-    local rel_path=$( echo "$1" | sed "$user_home_sed" );
+    local user_home;
+    local user_home_sed;
+    local rel_path;
+    user_home="${HOME//\//\\\/}";
+    user_home_sed="s#~#$user_home#g";
+    rel_path=$( echo "$1" | sed "$user_home_sed" );
     get_full_file_path_result=$( readlink -e "$rel_path" );
 }
 
@@ -65,8 +68,8 @@ function ls_directory {
 function read_config_file {
     touch "$CONFIG_FILE";
     while IFS='' read -r line || [[ -n "$line" ]]; do
-        IFS='=' read -a line_array <<< "$line";
-        eval "${line_array[0]}=${line_array[1]}";
+        IFS='=' read -r -a line_array <<< "$line";
+        eval "${line_array[0]}=\"${line_array[1]}\"";
     done < "$CONFIG_FILE";
 }
 
@@ -82,7 +85,7 @@ function read_agents_list {
         AGENTS_ARRAY["$AGENTS_ARRAY_COUNT"]="$line";
         AGENTS_STATUSES_ARRAY["$AGENTS_ARRAY_COUNT"]="$AGENT_FREE";
         AGENTS_PIDS_ARRAY["$AGENTS_ARRAY_COUNT"]=0;
-        AGENTS_ARRAY_COUNT=$(( $AGENTS_ARRAY_COUNT+1 ));
+        AGENTS_ARRAY_COUNT=$((AGENTS_ARRAY_COUNT+1));
     done < "$AGENTS_FILE";
 }
 
@@ -111,7 +114,7 @@ function save_agents_list {
 }
 
 function parse_agent {
-    IFS=':' read -a parse_agent_result <<< "$1";
+    IFS=':' read -r -a parse_agent_result <<< "$1";
 }
 
 function check_ssh_agent {
@@ -154,7 +157,7 @@ function get_free_agent {
         if [[ "${AGENTS_STATUSES_ARRAY[$i]}" == "$AGENT_FREE" ]]; then
             get_free_agent_result="$i";
         fi;
-        i=$(( $i+1 ));
+        i=$((i+1));
     done;
 }
 
@@ -187,7 +190,7 @@ function run_build_on_agent {
     rsync_agent "${parse_agent_result[1]}@${parse_agent_result[0]}";
 
     ssh -Cq "${parse_agent_result[1]}@${parse_agent_result[0]}" \
-        "cd ~/dscmd/$APPS_PATH/$2; ~/bin/Sencha/Cmd/sencha --plain --quiet --time app build;";
+        "cd ~/dscmd/$APPS_PATH/$2; $CMD_PATH --plain --quiet --time app build;";
     if [[ $? != 0 ]]; then
         echo "ERROR: failed build application '$2' on ${parse_agent_result[1]}@${parse_agent_result[0]}.";
         return 1;
@@ -213,7 +216,7 @@ function f_init {
     unset valid_directory;
     while [[ -z "$valid_directory" ]]; do
         text="Enter path to applications folder (default: $APPS_PATH_DAFAULT or previous uses) [ENTER]: ";
-        read -e -p "$text" apps_path_user;
+        read -r -e -p "$text" apps_path_user;
         get_full_file_path "$apps_path_user";
         if [[ -z "$apps_path_user" ]]; then
             valid_directory=1;
@@ -235,7 +238,7 @@ function f_init {
     unset valid_directory;
     while [[ -z "$valid_directory" ]]; do
         text="Enter path to SenchaCMD on agents (default: $CMD_PATH_DAFAULT or previous uses) [ENTER]: ";
-        read -e -p "$text" cmd_path_user;
+        read -r -e -p "$text" cmd_path_user;
         if [[ -z "$cmd_path_user" ]]; then
             valid_directory=1;
             if [[ -z "$CMD_PATH" ]]; then
@@ -259,11 +262,11 @@ function f_add_agent {
 
     unset host;
     while [[ -z "$host" ]]; do
-        read -p "Enter agent ip or host [ENTER]: " host;
+        read -r -p "Enter agent ip or host [ENTER]: " host;
     done;
 
     unset username;
-    read -p "Enter agent username (default: root) [ENTER]: " username;
+    read -r -p "Enter agent username (default: root) [ENTER]: " username;
     if [[ -z "$username" ]]; then
         username="root";
     fi;
@@ -279,14 +282,16 @@ function f_add_agent {
 
     unset install_script_path;
     while [[ -z "$install_script_path" ]]; do
-        read -e -p "Enter path to SenchaCMD installation script [ENTER]: " install_script_path;
+        read -r -e -p "Enter path to SenchaCMD installation script [ENTER]: " install_script_path;
     done;
 
-    local install_script_basename=$(basename "$install_script_path");
-    local install_script_extension="${install_script_basename##*.}";
-    local install_script_filename="${install_script_basename%.*}";
+    local install_script_basename;
+    local install_script_extension;
+    local install_script_realpath;
+    install_script_basename=$(basename "$install_script_path");
+    install_script_extension="${install_script_basename##*.}";
     get_full_file_path "$install_script_path";
-    local install_script_realpath="$get_full_file_path_result";
+    install_script_realpath="$get_full_file_path_result";
 
     if [[ "$install_script_extension" != "sh" ]] ; then
         echo "ERROR: file $install_script_realpath is not executable (*.sh).";
@@ -368,7 +373,7 @@ function f_remove_agent {
         if [[ "$1" = "${parse_agent_result[0]}" ]] || [[ "$1" = "--all" ]]; then
             AGENTS_ARRAY["$i"]="";
         fi;
-        i=$(( $i+1 ));
+        i=$((i+1));
     done;
 
     save_agents_list;
@@ -383,7 +388,7 @@ function f_agents_list {
     for agent in "${AGENTS_ARRAY[@]}"; do
         parse_agent "$agent";
         echo -e "#$i: ${parse_agent_result[1]}@${parse_agent_result[0]}";
-        i=$(( $i+1 ));
+        i=$((i+1));
     done;
 }
 
@@ -402,7 +407,7 @@ function f_agents_test {
         else
             echo -e "... OK";
         fi;
-        i=$(( $i+1 ));
+        i=$((i+1));
     done;
 }
 
@@ -424,7 +429,7 @@ function f_build {
         exit 1;
     fi;
 
-    IFS=',' read -a APPLICATIONS_ARRAY <<< "$apps_list";
+    IFS=',' read -r -a APPLICATIONS_ARRAY <<< "$apps_list";
 
     read_agents_list;
 
@@ -448,10 +453,10 @@ function f_build {
                             set_agent_free "$i";
                         fi;
                     fi;
-                    i=$(( $i+1 ));
+                    i=$((i+1));
                 done;
             else
-                while read line; do
+                while read -r line; do
                     echo -e "[build: $application] $line";
                 done < <(run_build_on_agent "$get_free_agent_result" "$application") &
                 set_agent_busy "$get_free_agent_result" "$!";
@@ -480,7 +485,7 @@ function f_usage {
 if [ "$1" == "init" ]; then
     f_init;
 elif [ "$1" == "add-agent" ]; then
-    f_add_agent $2;
+    f_add_agent "$2";
 elif [ "$1" == "remove-agent" ]; then
     f_remove_agent "$2";
 elif [ "$1" == "agents-list" ]; then
