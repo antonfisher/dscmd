@@ -461,6 +461,8 @@ function f_build {
         exit 1;
     fi;
 
+    local index;
+    index=1;
     for application in "${APPLICATIONS_ARRAY[@]}"; do
         runned=0;
         while [[ "$runned" == 0 ]]; do
@@ -480,12 +482,13 @@ function f_build {
                 done;
             else
                 while read -r line; do
-                    echo -e "[build: $application] $line";
+                    echo -e "[build $index/${#APPLICATIONS_ARRAY[@]}: $application] $line";
                 done < <(run_build_on_agent "$get_free_agent_result" "$application") &
                 set_agent_busy "$get_free_agent_result" "$!";
                 runned=1;
             fi;
         done;
+        index=$((index+1));
     done;
 
     wait;
