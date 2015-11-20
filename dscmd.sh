@@ -505,17 +505,17 @@ function f_usage {
 
 # --- main ---
 
-if [ "$1" == "init" ]; then
+if [[ "$1" == "init" ]]; then
     f_init;
-elif [ "$1" == "add-agent" ]; then
+elif [[ "$1" == "add-agent" ]]; then
     f_add_agent "$2";
-elif [ "$1" == "remove-agent" ]; then
+elif [[ "$1" == "remove-agent" ]]; then
     f_remove_agent "$2";
-elif [ "$1" == "agents-list" ]; then
+elif [[ "$1" == "agents-list" ]]; then
     f_agents_list;
-elif [ "$1" == "agents-test" ]; then
+elif [[ "$1" == "agents-test" ]]; then
     f_agents_test;
-elif [ "$1" == "build" ]; then
+elif [[ "$1" == "build" ]]; then
     f_build "$2";
 else
     f_usage;
