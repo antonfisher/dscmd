@@ -38,6 +38,19 @@ AGENTS_ARRAY_COUNT=0;
 
 # --- common functions ---
 
+##
+# Get full file/directory path
+#
+# $1 {String} - relative path
+#
+# @returns {String} in variable bash 'get_full_path_result'
+#
+# Examples:
+#
+#   get_full_path '/tmp' && echo "$get_full_path_result";       # /tmp
+#   get_full_path '~/..' && echo "$get_full_path_result";       # /home
+#   get_full_path '../../../' && echo "$get_full_path_result";  # /home
+#
 function get_full_file_path {
     local user_home;
     local user_home_sed;
@@ -48,6 +61,16 @@ function get_full_file_path {
     get_full_file_path_result=$( readlink -e "$rel_path" );
 }
 
+##
+# Check directory
+# $1 {String} - path
+# $2 {Number} - show error
+#
+# @returns {Number} 0 - exists / 1 - not exists
+#
+# Example:
+#   check_directory_exits /tmp 1;
+#
 function check_directory_exits {
     if [[ -d "$1" ]]; then
         return 0;
