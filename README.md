@@ -51,8 +51,8 @@ for each applications {
 - [x] Show list of applications after script init;
 - [x] Build all applicaitons in folder;
 - [x] Show build progress;
+- [x] Support for multi-host add-agent command.
 - [ ] Check application's build exit status;
-- [ ] Support for multi add-agent.
 - [ ] Show build time;
 - [ ] Script command suggestions.
 - [ ] Agent monitoring script.

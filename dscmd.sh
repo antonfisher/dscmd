@@ -283,9 +283,9 @@ function f_init {
 function f_add_agent {
     echo -e "Add agent wizard.\n";
 
-    unset host;
-    while [[ -z "$host" ]]; do
-        read -r -p "Enter agent ip or host [ENTER]: " host;
+    unset hosts_list;
+    while [[ -z "$hosts_list" ]]; do
+        read -r -p "Enter agent ip or host (use ',' to add few agents with same username)[ENTER]: " hosts_list;
     done;
 
     unset username;
@@ -296,11 +296,17 @@ function f_add_agent {
 
     read_agents_list;
 
-    for agent in "${AGENTS_ARRAY[@]}"; do
-        if [[ "$agent" = "$host:$username" ]]; then
-            echo "Host already registered.";
-            exit 1;
-        fi;
+    unset hosts_array;
+    IFS=',' read -r -a hosts_array <<< "$hosts_list";
+
+    for host in "${hosts_array[@]}"; do
+        for agent in "${AGENTS_ARRAY[@]}"; do
+            if [[ "$agent" = "$host:$username" ]]; then
+                echo -e "\nERROR: Host '$username@$host' already registered.\n";
+                f_agents_list;
+                exit 1;
+            fi;
+        done;
     done;
 
     unset install_script_path;
@@ -323,68 +329,72 @@ function f_add_agent {
 
     read_config_file;
 
-    echo -e "Copy key to agent $username@$host...";
-    ssh-copy-id "$username@$host"; #> /dev/null;
-    if [[ $? != 0 ]]; then
-        echo "ERROR: failed ssh connection to $username@$host.";
-        echo "How to create ssh key: https://www.digitalocean.com/community/tutorials/how-to-set-up-ssh-keys--2";
-        exit 1;
-    fi;
+    for host in "${hosts_array[@]}"; do
+        read_agents_list;
 
-    echo -e "Upgrade system on $username@$host...";
-    ssh -Ct "$username@$host" "sudo apt-get update && sudo apt-get -y upgrade";
-    if [[ $? != 0 ]]; then
-        echo "ERROR: failed upgrade system.";
-        exit 1;
-    fi;
+        echo -e "Copy key to agent $username@$host...";
+        ssh-copy-id "$username@$host"; #> /dev/null;
+        if [[ $? != 0 ]]; then
+            echo "ERROR: failed ssh connection to $username@$host.";
+            echo "How to create ssh key: https://www.digitalocean.com/community/tutorials/how-to-set-up-ssh-keys--2";
+            exit 1;
+        fi;
 
-    echo -e "Install 'openjdk-7-jre ruby' on $username@$host...";
-    ssh -Ct "$username@$host" "sudo apt-get -y install openjdk-7-jre ruby";
-    if [[ $? != 0 ]]; then
-        echo "ERROR: failed install Java and Ruby.";
-        exit 1;
-    fi;
+        echo -e "Upgrade system on $username@$host...";
+        ssh -Ct "$username@$host" "sudo apt-get update && sudo apt-get -y upgrade";
+        if [[ $? != 0 ]]; then
+            echo "ERROR: failed upgrade system.";
+            exit 1;
+        fi;
 
-    echo -e "Create 'dscmd' folder on $username@$host...";
-    ssh -Ct "$username@$host" "mkdir -p dscmd";
-    if [[ $? != 0 ]]; then
-        echo "ERROR: failed create folder.";
-        exit 1;
-    fi;
+        echo -e "Install 'openjdk-7-jre ruby' on $username@$host...";
+        ssh -Ct "$username@$host" "sudo apt-get -y install openjdk-7-jre ruby";
+        if [[ $? != 0 ]]; then
+            echo "ERROR: failed install Java and Ruby.";
+            exit 1;
+        fi;
 
-    echo -e "Copy SenchaCMD installation script ($install_script_realpath) to $username@$host:~/dscmd ...";
-    scp "$install_script_realpath" "$username@$host:~/dscmd";
-    if [[ $? != 0 ]]; then
-        echo "ERROR: failed copy SenchaCMD installation script.";
-        exit 1;
-    fi;
+        echo -e "Create 'dscmd' folder on $username@$host...";
+        ssh -Ct "$username@$host" "mkdir -p dscmd";
+        if [[ $? != 0 ]]; then
+            echo "ERROR: failed create folder.";
+            exit 1;
+        fi;
 
-    echo -e "Run SenchaCMD installation script on $username@$host...";
-    ssh -Ct "$username@$host" "cd ~/dscmd; bash ./$install_script_basename;";
-    if [[ $? != 0 ]]; then
-        echo "ERROR: failed run SenchaCMD installation script.";
-        exit 1;
-    fi;
+        echo -e "Copy SenchaCMD installation script ($install_script_realpath) to $username@$host:~/dscmd ...";
+        scp "$install_script_realpath" "$username@$host:~/dscmd";
+        if [[ $? != 0 ]]; then
+            echo "ERROR: failed copy SenchaCMD installation script.";
+            exit 1;
+        fi;
 
-    echo -e "Syncronize directory with $username@$host:/dscmd...";
-    rsync_agent "$username@$host";
-    if [[ $? != 0 ]]; then
-        echo "ERROR: failed sync with $username@$host:/dscmd.";
-        exit 1;
-    fi;
+        echo -e "Run SenchaCMD installation script on $username@$host...";
+        ssh -Ct "$username@$host" "cd ~/dscmd; bash ./$install_script_basename;";
+        if [[ $? != 0 ]]; then
+            echo "ERROR: failed run SenchaCMD installation script.";
+            exit 1;
+        fi;
 
-    AGENTS_ARRAY["$AGENTS_ARRAY_COUNT"]="$host:$username";
+        echo -e "Syncronize directory with $username@$host:/dscmd...";
+        rsync_agent "$username@$host";
+        if [[ $? != 0 ]]; then
+            echo "ERROR: failed sync with $username@$host:/dscmd.";
+            exit 1;
+        fi;
 
-    save_agents_list;
+        AGENTS_ARRAY["$AGENTS_ARRAY_COUNT"]="$host:$username";
 
-    echo "OK";
+        save_agents_list;
+    done;
+
+    echo "Done.";
 }
 
 function f_remove_agent {
     echo -e "Remove agent.";
 
     if [[ -z "$1" ]]; then
-        echo "ERROR: host missed."
+        echo "ERROR: host missed.";
         exit 1;
     fi;
 
@@ -403,7 +413,7 @@ function f_remove_agent {
 }
 
 function f_agents_list {
-    echo -e "Agents list:\n";
+    echo -e "Agents list:";
 
     read_agents_list;
 
