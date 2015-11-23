@@ -83,7 +83,8 @@ function check_directory_exits {
 }
 
 function ls_directory {
-    ls_directory_result=$( ls -m "$1" | sed 's#, #,#g' | tr -d '\n' );
+    ls_directory_result=$( find ./ -maxdepth 1 -type d -not -name . -printf '%f,' | sed 's/,$//' );
+    return $?;
 }
 
 # --- util functions ---
