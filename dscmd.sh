@@ -142,7 +142,8 @@ function parse_agent {
 }
 
 function check_ssh_agent {
-    return $(ssh -o ConnectTimeout=10 "$1" "exit;"); #> /dev/null;
+    ssh -o ConnectTimeout=10 "$1" "exit"; #> /dev/null;
+    return $?;
 }
 
 function rsync_agent {
@@ -370,7 +371,7 @@ function f_add_agent {
         fi;
 
         echo -e "Run SenchaCMD installation script on $username@$host...";
-        ssh -Ct "$username@$host" "cd ~/dscmd; bash ./$install_script_basename;";
+        ssh -Ct "$username@$host" "cd ~/dscmd; bash ./$install_script_basename";
         if [[ $? != 0 ]]; then
             echo "ERROR: failed run SenchaCMD installation script.";
             exit 1;
