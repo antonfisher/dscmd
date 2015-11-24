@@ -83,7 +83,7 @@ function check_directory_exits {
 }
 
 function ls_directory {
-    ls_directory_result=$( find ./ -maxdepth 1 -type d -not -name . -printf '%f,' | sed 's/,$//' );
+    ls_directory_result=$( ls -m ./pages | sed 's#, #,#g' | tr -d '\n' );
     return $?;
 }
 
