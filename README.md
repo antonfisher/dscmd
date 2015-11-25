@@ -52,7 +52,8 @@ for each applications {
 - [x] Build all applicaitons in folder;
 - [x] Show build progress;
 - [x] Support for multi-host add-agent command.
-- [ ] Check application's build exit status;
+- [x] Check application's build exit status;
+- [ ] Stop build after first fail;
 - [ ] Show build time;
 - [ ] Script command suggestions.
 - [ ] Agent monitoring script.

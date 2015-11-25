@@ -207,24 +207,62 @@ function set_agent_busy {
 #
 # @param {Number} $1 agent index
 # @param {String} $2 application name
+# @param {Number} $3 application index
 #
 function run_build_on_agent {
+    local application;
+    local index;
+    local agent;
+    local agent_exit_code;
+    local subprocess_exit_code;
+
     parse_agent "${AGENTS_ARRAY[$1]}";
+
+    application="$2"
+    index="$3";
     agent="${parse_agent_result[1]}@${parse_agent_result[0]}";
+    agent_exit_code=0;
 
-    echo -e "run build '$2' on $agent";
+    while read -r line; do
+        subprocess_exit_code="${line//EXIT_CODE:/}";
 
-    rsync_agent "$agent";
+        if [[ "$subprocess_exit_code" == "$line" ]]; then
+            echo -e "[build $index/${#APPLICATIONS_ARRAY[@]}: $application] $line";
+        else
+            agent_exit_code="$subprocess_exit_code";
+        fi;
+    done < <(
+        echo -e "run build '$application' on $agent";
+        subprocess_exit_code=0;
 
-    ssh -Cq "$agent" "cd ~/dscmd/$APPS_PATH/$2; $CMD_PATH --plain --quiet --time app build;";
-    if [[ $? != 0 ]]; then
-        echo "ERROR: failed build application '$2' on $agent.";
-        return 1;
-    fi;
+        if [[ "$subprocess_exit_code" == 0 ]]; then
+            rsync_agent "$agent";
+            subprocess_exit_code="$?";
+            if [[ "$subprocess_exit_code" != 0 ]]; then
+                echo "ERROR: failed rsync '$2' from local folder to $agent (local --X--> agent).";
+            fi;
+        fi;
 
-    rsync_local_folder "$agent" "build/production/${2^}";
+        if [[ "$subprocess_exit_code" == 0 ]]; then
+            ssh -Cq "$agent" "cd ~/dscmd/$APPS_PATH/$2; $CMD_PATH --plain --quiet --time app build;";
+            subprocess_exit_code="$?";
+            if [[ "$subprocess_exit_code" != 0 ]]; then
+                echo "ERROR: failed build application '$2' on $agent.";
+            fi;
+        fi;
 
-    return $?;
+        if [[ "$subprocess_exit_code" == 0 ]]; then
+            rsync_local_folder "$agent" "build/production/${2^}";
+            subprocess_exit_code="$?";
+            if [[ "$subprocess_exit_code" != 0 ]]; then
+                echo "ERROR: failed rsync '$2' from $agent to local folder (local <--X-- agent).";
+            fi;
+        fi;
+
+        echo "EXIT_CODE:$subprocess_exit_code";
+    )
+
+    exit "$agent_exit_code";
 }
 
 # --- tool usage functions ---
@@ -477,7 +515,10 @@ function f_build {
     mkdir -p build/production;
 
     local index;
+    local build_exit_code;
+
     index=1;
+    build_exit_code=0;
     for application in "${APPLICATIONS_ARRAY[@]}"; do
         runned=0;
         while [[ "$runned" == 0 ]]; do
@@ -488,17 +529,21 @@ function f_build {
                 i=0;
                 for pid in "${AGENTS_PIDS_ARRAY[@]}"; do
                     if [[ "$pid" != 0 ]]; then
-                        ps -p "${pid}" &>/dev/null;
+                        ps -p "$pid" &>/dev/null;
                         if [[ $? != 0 ]]; then
                             set_agent_free "$i";
+                            wait "$pid";
+                            exit_code=$?;
+                            if [[ "$exit_code" != 0 ]]; then
+                                echo -e "ERROR: '$application' build failed, exit code: $exit_code.";
+                                build_exit_code="$exit_code";
+                            fi;
                         fi;
                     fi;
                     i=$((i+1));
                 done;
             else
-                while read -r line; do
-                    echo -e "[build $index/${#APPLICATIONS_ARRAY[@]}: $application] $line";
-                done < <(run_build_on_agent "$get_free_agent_result" "$application") &
+                run_build_on_agent "$get_free_agent_result" "$application" "$index" &
                 set_agent_busy "$get_free_agent_result" "$!";
                 runned=1;
             fi;
@@ -508,7 +553,11 @@ function f_build {
 
     wait;
 
-    echo -e "Done.";
+    if [[ "$build_exit_code" != 0 ]]; then
+        echo -e "\nBUILD FAILED (exit code: $build_exit_code).\n";
+    else
+        echo -e "\nDone.\n";
+    fi;
 }
 
 function f_usage {
