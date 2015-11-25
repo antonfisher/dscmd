@@ -138,7 +138,8 @@ function save_agents_list {
 }
 
 function parse_agent {
-    IFS=':' read -r -a parse_agent_result <<< "$1";
+    IFS=':';
+    read -r -a parse_agent_result <<< "$1";
 }
 
 function check_ssh_agent {
@@ -209,19 +210,19 @@ function set_agent_busy {
 #
 function run_build_on_agent {
     parse_agent "${AGENTS_ARRAY[$1]}";
+    agent="${parse_agent_result[1]}@${parse_agent_result[0]}";
 
-    echo -e "run build '$2' on ${parse_agent_result[1]}@${parse_agent_result[0]}";
+    echo -e "run build '$2' on $agent";
 
-    rsync_agent "${parse_agent_result[1]}@${parse_agent_result[0]}";
+    rsync_agent "$agent";
 
-    ssh -Cq "${parse_agent_result[1]}@${parse_agent_result[0]}" \
-        "cd ~/dscmd/$APPS_PATH/$2; $CMD_PATH --plain --quiet --time app build;";
+    ssh -Cq "$agent" "cd ~/dscmd/$APPS_PATH/$2; $CMD_PATH --plain --quiet --time app build;";
     if [[ $? != 0 ]]; then
-        echo "ERROR: failed build application '$2' on ${parse_agent_result[1]}@${parse_agent_result[0]}.";
+        echo "ERROR: failed build application '$2' on $agent.";
         return 1;
     fi;
 
-    rsync_local_folder "${parse_agent_result[1]}@${parse_agent_result[0]}" "build/production/${2^}";
+    rsync_local_folder "$agent" "build/production/${2^}";
 
     return $?;
 }
@@ -472,6 +473,8 @@ function f_build {
         echo -e "ERROR: no agents.";
         exit 1;
     fi;
+
+    mkdir -p build/production;
 
     local index;
     index=1;
