@@ -41,21 +41,21 @@ for each applications {
 ```
 
 ## Release History
+* 0.1.2 Beta release:
+    * Configurable application path;
+    * Show list of applications after script init;
+    * Show build progress;
+    * Support for multi-host add-agent command;
+    * Check application's build exit status;
+    * Stop build after first fail;
 * 0.1.1 Beta release:
     * Support `build --all` flag;
-    * Fix: `add-agent`
+    * Fix: `add-agent`;
 * 0.1.0 Initial release.
 
 ## ToDo
-- [x] Configurable application path;
-- [x] Show list of applications after script init;
-- [x] Build all applicaitons in folder;
-- [x] Show build progress;
-- [x] Support for multi-host add-agent command.
-- [x] Check application's build exit status;
-- [x] Stop build after first fail;
 - [ ] Show build time;
-- [ ] Script command suggestions.
+- [ ] Script command suggestions;
 - [ ] Agent monitoring script.
 
 ## License
