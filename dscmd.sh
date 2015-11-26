@@ -1,5 +1,4 @@
 #!/usr/bin/env bash
-
 #-------------------------------------------------------------------------------------
 # Build distribution tool for SenchaCMD v1.0.0
 # Anton Fisher <a.fschr@gmail.com>
@@ -56,9 +55,9 @@ function get_full_file_path {
     local user_home_sed;
     local rel_path;
     user_home="${HOME//\//\\\/}";
-    user_home_sed="s#~#$user_home#g";
-    rel_path=$( echo "$1" | sed "$user_home_sed" );
-    get_full_file_path_result=$( readlink -e "$rel_path" );
+    user_home_sed="s#~#${user_home}#g";
+    rel_path=$( echo "${1}" | sed "${user_home_sed}" );
+    get_full_file_path_result=$( readlink -e "${rel_path}" );
 }
 
 ##
@@ -72,11 +71,11 @@ function get_full_file_path {
 #   check_directory_exits /tmp 1;
 #
 function check_directory_exits {
-    if [[ -d "$1" ]]; then
+    if [[ -d "${1}" ]]; then
         return 0;
     else
-        if [[ "$2" == 1 ]]; then
-            echo -e "Directory '$1' does not exist. Please try again.";
+        if [[ "${2}" == 1 ]]; then
+            echo -e "Directory '${1}' does not exist. Please try again.";
         fi;
         return 1;
     fi;
@@ -84,67 +83,67 @@ function check_directory_exits {
 
 function ls_directory {
     ls_directory_result=$( ls -m ./pages | sed 's#, #,#g' | tr -d '\n' );
-    return $?;
+    return "${?}";
 }
 
 # --- util functions ---
 
 function read_config_file {
-    touch "$CONFIG_FILE";
-    while IFS='' read -r line || [[ -n "$line" ]]; do
-        IFS='=' read -r -a line_array <<< "$line";
+    touch "${CONFIG_FILE}";
+    while IFS='' read -r line || [[ -n "${line}" ]]; do
+        IFS='=' read -r -a line_array <<< "${line}";
         eval "${line_array[0]}=\"${line_array[1]}\"";
-    done < "$CONFIG_FILE";
+    done < "${CONFIG_FILE}";
 }
 
 function save_config_file {
-    touch "$CONFIG_FILE";
-    echo -e "$1" > "$CONFIG_FILE";
+    touch "${CONFIG_FILE}";
+    echo -e "${1}" > "${CONFIG_FILE}";
 }
 
 function read_agents_list {
-    touch "$AGENTS_FILE";
+    touch "${AGENTS_FILE}";
     AGENTS_ARRAY_COUNT="0";
-    while IFS='' read -r line || [[ -n "$line" ]]; do
-        AGENTS_ARRAY["$AGENTS_ARRAY_COUNT"]="$line";
-        AGENTS_STATUSES_ARRAY["$AGENTS_ARRAY_COUNT"]="$AGENT_FREE";
-        AGENTS_PIDS_ARRAY["$AGENTS_ARRAY_COUNT"]=0;
+    while IFS='' read -r line || [[ -n "${line}" ]]; do
+        AGENTS_ARRAY["${AGENTS_ARRAY_COUNT}"]="${line}";
+        AGENTS_STATUSES_ARRAY["${AGENTS_ARRAY_COUNT}"]="${AGENT_FREE}";
+        AGENTS_PIDS_ARRAY["${AGENTS_ARRAY_COUNT}"]=0;
         AGENTS_ARRAY_COUNT=$((AGENTS_ARRAY_COUNT+1));
-    done < "$AGENTS_FILE";
+    done < "${AGENTS_FILE}";
 }
 
 function save_agents_list {
     local nl;
     local result;
 
-    > "$AGENTS_FILE";
+    > "${AGENTS_FILE}";
 
     unset nl;
     unset result;
     for agent in "${AGENTS_ARRAY[@]}"; do
-        if [[ -n "$agent" ]]; then
-            if [[ -n "$result" ]]; then
+        if [[ -n "${agent}" ]]; then
+            if [[ -n "${result}" ]]; then
                 nl=$'\n';
             fi;
-            result="$result$nl$agent";
+            result="${result}${nl}${agent}";
         fi;
     done;
 
-    if [[ -n "$result" ]]; then
-        echo "$result" > "$AGENTS_FILE";
+    if [[ -n "${result}" ]]; then
+        echo "${result}" > "${AGENTS_FILE}";
     else
-        > "$AGENTS_FILE";
+        > "${AGENTS_FILE}";
     fi;
 }
 
 function parse_agent {
     IFS=':';
-    read -r -a parse_agent_result <<< "$1";
+    read -r -a parse_agent_result <<< "${1}";
 }
 
 function check_ssh_agent {
-    ssh -o ConnectTimeout=10 "$1" "exit"; #> /dev/null;
-    return $?;
+    ssh -o ConnectTimeout=10 "${1}" "exit"; #> /dev/null;
+    return "${?}";
 }
 
 function rsync_agent {
@@ -155,10 +154,10 @@ function rsync_agent {
         --delete-excluded \
         --exclude=/.dscmd-* \
         --exclude=dscmd.sh \
-        ./ "$1:~/dscmd";
+        ./ "${1}:~/dscmd";
         #-azvP \
 
-    return $?;
+    return "${?}";
 }
 
 function rsync_local_folder {
@@ -169,10 +168,10 @@ function rsync_local_folder {
         --delete-excluded \
         --exclude=/.dscmd-* \
         --exclude=dscmd.sh \
-        "$1:~/dscmd/$2/" ./"$2";
+        "${1}:~/dscmd/${2}/" ./"${2}";
         #-azvP \
 
-    return $?;
+    return "${?}";
 }
 
 function get_free_agent {
@@ -180,8 +179,8 @@ function get_free_agent {
 
     local i=0;
     for agent in "${AGENTS_ARRAY[@]}"; do
-        if [[ "${AGENTS_STATUSES_ARRAY[$i]}" == "$AGENT_FREE" ]]; then
-            get_free_agent_result="$i";
+        if [[ "${AGENTS_STATUSES_ARRAY[$i]}" == "${AGENT_FREE}" ]]; then
+            get_free_agent_result="${i}";
         fi;
         i=$((i+1));
     done;
@@ -191,8 +190,8 @@ function get_free_agent {
 # @param {Number} $1 agent index
 #
 function set_agent_free {
-    AGENTS_PIDS_ARRAY["$1"]=0;
-    AGENTS_STATUSES_ARRAY["$1"]="$AGENT_FREE";
+    AGENTS_PIDS_ARRAY["${1}"]=0;
+    AGENTS_STATUSES_ARRAY["${1}"]="${AGENT_FREE}";
 }
 
 #
@@ -200,8 +199,8 @@ function set_agent_free {
 # @param {Number} $2 agent process pid
 #
 function set_agent_busy {
-    AGENTS_PIDS_ARRAY["$1"]="$2";
-    AGENTS_STATUSES_ARRAY["$1"]="$AGENT_BUSY";
+    AGENTS_PIDS_ARRAY["${1}"]="${2}";
+    AGENTS_STATUSES_ARRAY["${1}"]="${AGENT_BUSY}";
 }
 
 #
@@ -218,51 +217,52 @@ function run_build_on_agent {
 
     parse_agent "${AGENTS_ARRAY[$1]}";
 
-    application="$2"
-    index="$3";
+    application="${2}"
+    index="${3}";
     agent="${parse_agent_result[1]}@${parse_agent_result[0]}";
     agent_exit_code=0;
 
     while read -r line; do
         subprocess_exit_code="${line//EXIT_CODE:/}";
 
-        if [[ "$subprocess_exit_code" == "$line" ]]; then
-            echo -e "[build $index/${#APPLICATIONS_ARRAY[@]}: $application] $line";
+        if [[ "${subprocess_exit_code}" == "${line}" ]]; then
+            index_f=$(printf "% 3d" "${index}");
+            echo -e "[build ${index_f}/${#APPLICATIONS_ARRAY[@]}: ${application}] ${line}";
         else
-            agent_exit_code="$subprocess_exit_code";
+            agent_exit_code="${subprocess_exit_code}";
         fi;
     done < <(
-        echo -e "run build '$application' on $agent";
+        echo -e "run build '${application}' on ${agent}";
         subprocess_exit_code=0;
 
-        if [[ "$subprocess_exit_code" == 0 ]]; then
-            rsync_agent "$agent";
-            subprocess_exit_code="$?";
-            if [[ "$subprocess_exit_code" != 0 ]]; then
-                echo "ERROR: failed rsync '$2' from local folder to $agent (local --X--> agent).";
+        if [[ "${subprocess_exit_code}" == 0 ]]; then
+            rsync_agent "${agent}";
+            subprocess_exit_code="${?}";
+            if [[ "${subprocess_exit_code}" != 0 ]]; then
+                echo "ERROR: failed rsync '${2}' from local folder to ${agent} (local --X--> agent).";
             fi;
         fi;
 
-        if [[ "$subprocess_exit_code" == 0 ]]; then
-            ssh -Cq "$agent" "cd ~/dscmd/$APPS_PATH/$2; $CMD_PATH --plain --quiet --time app build;";
-            subprocess_exit_code="$?";
-            if [[ "$subprocess_exit_code" != 0 ]]; then
-                echo "ERROR: failed build application '$2' on $agent.";
+        if [[ "${subprocess_exit_code}" == 0 ]]; then
+            ssh -Cq "${agent}" "cd ~/dscmd/${APPS_PATH}/${2}; ${CMD_PATH} --plain --quiet --time app build;";
+            subprocess_exit_code="${?}";
+            if [[ "${subprocess_exit_code}" != 0 ]]; then
+                echo "ERROR: failed build application '${2}' on ${agent}.";
             fi;
         fi;
 
-        if [[ "$subprocess_exit_code" == 0 ]]; then
-            rsync_local_folder "$agent" "build/production/${2^}";
-            subprocess_exit_code="$?";
-            if [[ "$subprocess_exit_code" != 0 ]]; then
-                echo "ERROR: failed rsync '$2' from $agent to local folder (local <--X-- agent).";
+        if [[ "${subprocess_exit_code}" == 0 ]]; then
+            rsync_local_folder "${agent}" "build/production/${2^}";
+            subprocess_exit_code="${?}";
+            if [[ "${subprocess_exit_code}" != 0 ]]; then
+                echo "ERROR: failed rsync '${2}' from ${agent} to local folder (local <--X-- agent).";
             fi;
         fi;
 
-        echo "EXIT_CODE:$subprocess_exit_code";
+        echo "EXIT_CODE:${subprocess_exit_code}";
     )
 
-    exit "$agent_exit_code";
+    exit "${agent_exit_code}";
 }
 
 # --- tool usage functions ---
@@ -278,72 +278,72 @@ function f_init {
     read_config_file;
 
     unset valid_directory;
-    while [[ -z "$valid_directory" ]]; do
-        text="Enter path to applications folder (default: $APPS_PATH_DAFAULT or previous uses) [ENTER]: ";
-        read -r -e -p "$text" apps_path_user;
-        get_full_file_path "$apps_path_user";
-        if [[ -z "$apps_path_user" ]]; then
+    while [[ -z "${valid_directory}" ]]; do
+        text="Enter path to applications folder (default: ${APPS_PATH_DAFAULT} or previous uses) [ENTER]: ";
+        read -r -e -p "${text}" apps_path_user;
+        get_full_file_path "${apps_path_user}";
+        if [[ -z "${apps_path_user}" ]]; then
             valid_directory=1;
-            if [[ -z "$APPS_PATH" ]]; then
-                apps_path_user="$APPS_PATH_DAFAULT";
+            if [[ -z "${APPS_PATH}" ]]; then
+                apps_path_user="${APPS_PATH_DAFAULT}";
             else
-                apps_path_user="$APPS_PATH";
+                apps_path_user="${APPS_PATH}";
             fi;
-        elif [[ "$apps_path_user" == .* || "$apps_path_user" == /* || "$apps_path_user" == ~* ]]; then
+        elif [[ "${apps_path_user}" == .* || "${apps_path_user}" == /* || "${apps_path_user}" == ~* ]]; then
             echo -e "ERROR: only local directories allowed...";
-        elif check_directory_exits "$get_full_file_path_result" 1; then
+        elif check_directory_exits "${get_full_file_path_result}" 1; then
             valid_directory=1;
         fi;
     done;
     apps_path_user="${apps_path_user%/}";
-    ls_directory "$apps_path_user";
-    echo -e "Found applications in '$apps_path_user': $ls_directory_result";
+    ls_directory "${apps_path_user}";
+    echo -e "Found applications in '${apps_path_user}': ${ls_directory_result}";
 
     unset valid_directory;
-    while [[ -z "$valid_directory" ]]; do
-        text="Enter path to SenchaCMD on agents (default: $CMD_PATH_DAFAULT or previous uses) [ENTER]: ";
-        read -r -e -p "$text" cmd_path_user;
-        if [[ -z "$cmd_path_user" ]]; then
+    while [[ -z "${valid_directory}" ]]; do
+        text="Enter path to SenchaCMD on agents (default: ${CMD_PATH_DAFAULT} or previous uses) [ENTER]: ";
+        read -r -e -p "${text}" cmd_path_user;
+        if [[ -z "${cmd_path_user}" ]]; then
             valid_directory=1;
-            if [[ -z "$CMD_PATH" ]]; then
-                cmd_path_user="$CMD_PATH_DAFAULT";
+            if [[ -z "${CMD_PATH}" ]]; then
+                cmd_path_user="${CMD_PATH_DAFAULT}";
             else
-                cmd_path_user="$CMD_PATH";
+                cmd_path_user="${CMD_PATH}";
             fi;
         else
             valid_directory=1;
         fi;
     done;
 
-    save_config_file "APPS_PATH=$apps_path_user\nCMD_PATH=$cmd_path_user";
+    save_config_file "APPS_PATH=${apps_path_user}\nCMD_PATH=${cmd_path_user}";
 
-    echo -e "\nSaved to $CONFIG_FILE:";
-    cat "$CONFIG_FILE";
+    echo -e "\nSaved to ${CONFIG_FILE}:";
+    cat "${CONFIG_FILE}";
 }
 
 function f_add_agent {
     echo -e "Add agent wizard.\n";
 
     unset hosts_list;
-    while [[ -z "$hosts_list" ]]; do
+    while [[ -z "${hosts_list}" ]]; do
         read -r -p "Enter agent ip or host (use ',' to add few agents with same username)[ENTER]: " hosts_list;
     done;
 
     unset username;
     read -r -p "Enter agent username (default: root) [ENTER]: " username;
-    if [[ -z "$username" ]]; then
+    if [[ -z "${username}" ]]; then
         username="root";
     fi;
 
     read_agents_list;
 
     unset hosts_array;
-    IFS=',' read -r -a hosts_array <<< "$hosts_list";
+    IFS=',' read -r -a hosts_array <<< "${hosts_list}";
 
     for host in "${hosts_array[@]}"; do
         for agent in "${AGENTS_ARRAY[@]}"; do
-            if [[ "$agent" = "$host:$username" ]]; then
-                echo -e "\nERROR: Host '$username@$host' already registered.\n";
+            if [[ "${agent}" = "${host}:${username}" ]]; then
+                echo -e "\nERROR: Host '${username}@${host}' already registered.\n";
                 f_agents_list;
                 exit 1;
             fi;
@@ -351,20 +351,20 @@ function f_add_agent {
     done;
 
     unset install_script_path;
-    while [[ -z "$install_script_path" ]]; do
+    while [[ -z "${install_script_path}" ]]; do
         read -r -e -p "Enter path to SenchaCMD installation script [ENTER]: " install_script_path;
     done;
 
     local install_script_basename;
     local install_script_extension;
     local install_script_realpath;
-    install_script_basename=$(basename "$install_script_path");
+    install_script_basename=$(basename "${install_script_path}");
     install_script_extension="${install_script_basename##*.}";
-    get_full_file_path "$install_script_path";
-    install_script_realpath="$get_full_file_path_result";
+    get_full_file_path "${install_script_path}";
+    install_script_realpath="${get_full_file_path_result}";
 
-    if [[ "$install_script_extension" != "sh" ]] ; then
-        echo "ERROR: file $install_script_realpath is not executable (*.sh).";
+    if [[ "${install_script_extension}" != "sh" ]] ; then
+        echo "ERROR: file ${install_script_realpath} is not executable (*.sh).";
         exit 1;
     fi;
 
@@ -373,57 +373,57 @@ function f_add_agent {
     for host in "${hosts_array[@]}"; do
         read_agents_list;
 
-        echo -e "Copy key to agent $username@$host...";
-        ssh-copy-id "$username@$host"; #> /dev/null;
-        if [[ $? != 0 ]]; then
-            echo "ERROR: failed ssh connection to $username@$host.";
+        echo -e "Copy key to agent ${username}@${host}...";
+        ssh-copy-id "${username}@${host}"; #> /dev/null;
+        if [[ "${?}" != 0 ]]; then
+            echo "ERROR: failed ssh connection to ${username}@${host}.";
             echo "How to create ssh key: https://www.digitalocean.com/community/tutorials/how-to-set-up-ssh-keys--2";
             exit 1;
         fi;
 
-        echo -e "Upgrade system on $username@$host...";
-        ssh -Ct "$username@$host" "sudo apt-get update && sudo apt-get -y upgrade";
-        if [[ $? != 0 ]]; then
+        echo -e "Upgrade system on ${username}@${host}...";
+        ssh -Ct "${username}@${host}" "sudo apt-get update && sudo apt-get -y upgrade";
+        if [[ "${?}" != 0 ]]; then
             echo "ERROR: failed upgrade system.";
             exit 1;
         fi;
 
-        echo -e "Install 'openjdk-7-jre ruby' on $username@$host...";
-        ssh -Ct "$username@$host" "sudo apt-get -y install openjdk-7-jre ruby";
-        if [[ $? != 0 ]]; then
+        echo -e "Install 'openjdk-7-jre ruby' on ${username}@${host}...";
+        ssh -Ct "${username}@${host}" "sudo apt-get -y install openjdk-7-jre ruby";
+        if [[ "${?}" != 0 ]]; then
             echo "ERROR: failed install Java and Ruby.";
             exit 1;
         fi;
 
-        echo -e "Create 'dscmd' folder on $username@$host...";
-        ssh -Ct "$username@$host" "mkdir -p dscmd";
-        if [[ $? != 0 ]]; then
+        echo -e "Create 'dscmd' folder on ${username}@${host}...";
+        ssh -Ct "${username}@${host}" "mkdir -p dscmd";
+        if [[ "${?}" != 0 ]]; then
             echo "ERROR: failed create folder.";
             exit 1;
         fi;
 
-        echo -e "Copy SenchaCMD installation script ($install_script_realpath) to $username@$host:~/dscmd ...";
-        scp "$install_script_realpath" "$username@$host:~/dscmd";
-        if [[ $? != 0 ]]; then
+        echo -e "Copy SenchaCMD installation script (${install_script_realpath}) to ${username}@${host}:~/dscmd ...";
+        scp "${install_script_realpath}" "${username}@${host}:~/dscmd";
+        if [[ "${?}" != 0 ]]; then
             echo "ERROR: failed copy SenchaCMD installation script.";
             exit 1;
         fi;
 
-        echo -e "Run SenchaCMD installation script on $username@$host...";
-        ssh -Ct "$username@$host" "cd ~/dscmd; bash ./$install_script_basename";
-        if [[ $? != 0 ]]; then
+        echo -e "Run SenchaCMD installation script on ${username}@${host}...";
+        ssh -Ct "${username}@${host}" "cd ~/dscmd; bash ./${install_script_basename}";
+        if [[ "${?}" != 0 ]]; then
             echo "ERROR: failed run SenchaCMD installation script.";
             exit 1;
         fi;
 
-        echo -e "Syncronize directory with $username@$host:/dscmd...";
-        rsync_agent "$username@$host";
-        if [[ $? != 0 ]]; then
-            echo "ERROR: failed sync with $username@$host:/dscmd.";
+        echo -e "Syncronize directory with ${username}@${host}:/dscmd...";
+        rsync_agent "${username}@${host}";
+        if [[ "${?}" != 0 ]]; then
+            echo "ERROR: failed sync with ${username}@${host}:/dscmd.";
             exit 1;
         fi;
 
-        AGENTS_ARRAY["$AGENTS_ARRAY_COUNT"]="$host:$username";
+        AGENTS_ARRAY["${AGENTS_ARRAY_COUNT}"]="${host}:${username}";
 
         save_agents_list;
     done;
@@ -434,7 +434,7 @@ function f_add_agent {
 function f_remove_agent {
     echo -e "Remove agent.";
 
-    if [[ -z "$1" ]]; then
+    if [[ -z "${1}" ]]; then
         echo "ERROR: host missed.";
         exit 1;
     fi;
@@ -443,9 +443,9 @@ function f_remove_agent {
 
     local i=0;
     for agent in "${AGENTS_ARRAY[@]}"; do
-        parse_agent "$agent";
-        if [[ "$1" = "${parse_agent_result[0]}" ]] || [[ "$1" = "--all" ]]; then
-            AGENTS_ARRAY["$i"]="";
+        parse_agent "${agent}";
+        if [[ "${1}" = "${parse_agent_result[0]}" ]] || [[ "${1}" = "--all" ]]; then
+            AGENTS_ARRAY["${i}"]="";
         fi;
         i=$((i+1));
     done;
@@ -460,8 +460,8 @@ function f_agents_list {
 
     local i=0;
     for agent in "${AGENTS_ARRAY[@]}"; do
-        parse_agent "$agent";
-        echo -e "#$i: ${parse_agent_result[1]}@${parse_agent_result[0]}";
+        parse_agent "${agent}";
+        echo -e "#${i}: ${parse_agent_result[1]}@${parse_agent_result[0]}";
         i=$((i+1));
     done;
 }
@@ -473,10 +473,10 @@ function f_agents_test {
 
     local i=0;
     for agent in "${AGENTS_ARRAY[@]}"; do
-        parse_agent "$agent";
-        echo -e "Connect to #$i: ${parse_agent_result[1]}@${parse_agent_result[0]}...";
+        parse_agent "${agent}";
+        echo -e "Connect to #${i}: ${parse_agent_result[1]}@${parse_agent_result[0]}...";
         check_ssh_agent "${parse_agent_result[1]}@${parse_agent_result[0]}";
-        if [[ $? != 0 ]]; then
+        if [[ "${?}" != 0 ]]; then
             echo -e "... ERROR";
         else
             echo -e "... OK";
@@ -490,24 +490,24 @@ function f_build {
 
     read_config_file;
 
-    apps_list="$1";
+    apps_list="${1}";
 
-    if [[ "$1" = "--all" ]]; then
-        ls_directory "$APPS_PATH";
-        apps_list="$ls_directory_result";
+    if [[ "${1}" = "--all" ]]; then
+        ls_directory "${APPS_PATH}";
+        apps_list="${ls_directory_result}";
     fi;
 
-    if [[ -z "$apps_list" ]]; then
+    if [[ -z "${apps_list}" ]]; then
         echo -e "ERROR: application list missed / no application found.";
         echo -e "Usage: ./dscmd.sh build [--all] <application1,application2,...>";
         exit 1;
     fi;
 
-    IFS=',' read -r -a APPLICATIONS_ARRAY <<< "$apps_list";
+    IFS=',' read -r -a APPLICATIONS_ARRAY <<< "${apps_list}";
 
     read_agents_list;
 
-    if [[ "$AGENTS_ARRAY_COUNT" == "0" ]]; then
+    if [[ "${AGENTS_ARRAY_COUNT}" == "0" ]]; then
         echo -e "ERROR: no agents.";
         exit 1;
     fi;
@@ -521,30 +521,30 @@ function f_build {
     build_exit_code=0;
     for application in "${APPLICATIONS_ARRAY[@]}"; do
         runned=0;
-        while [[ "$runned" == 0 ]]; do
+        while [[ "${runned}" == 0 ]]; do
             get_free_agent;
 
-            if [[ -z "$get_free_agent_result" ]]; then
+            if [[ -z "${get_free_agent_result}" ]]; then
                 sleep 1;
                 i=0;
                 for pid in "${AGENTS_PIDS_ARRAY[@]}"; do
-                    if [[ "$pid" != 0 ]]; then
-                        ps -p "$pid" &>/dev/null;
-                        if [[ $? != 0 ]]; then
-                            set_agent_free "$i";
-                            wait "$pid";
-                            exit_code=$?;
-                            if [[ "$exit_code" != 0 ]]; then
-                                echo -e "ERROR: '$application' build failed, exit code: $exit_code.";
-                                build_exit_code="$exit_code";
+                    if [[ "${pid}" != 0 ]]; then
+                        ps -p "${pid}" &>/dev/null;
+                        if [[ "${?}" != 0 ]]; then
+                            set_agent_free "${i}";
+                            wait "${pid}";
+                            exit_code="${?}";
+                            if [[ "${exit_code}" != 0 ]]; then
+                                echo -e "ERROR: '${application}' build failed, exit code: ${exit_code}.";
+                                build_exit_code="${exit_code}";
                             fi;
                         fi;
                     fi;
                     i=$((i+1));
                 done;
             else
-                run_build_on_agent "$get_free_agent_result" "$application" "$index" &
-                set_agent_busy "$get_free_agent_result" "$!";
+                run_build_on_agent "${get_free_agent_result}" "${application}" "${index}" &
+                set_agent_busy "${get_free_agent_result}" "${!}";
                 runned=1;
             fi;
         done;
@@ -553,8 +553,8 @@ function f_build {
 
     wait;
 
-    if [[ "$build_exit_code" != 0 ]]; then
-        echo -e "\nBUILD FAILED (exit code: $build_exit_code).\n";
+    if [[ "${build_exit_code}" != 0 ]]; then
+        echo -e "\nBUILD FAILED (exit code: ${build_exit_code}).\n";
     else
         echo -e "\nDone.\n";
     fi;
@@ -572,18 +572,18 @@ function f_usage {
 
 # --- main ---
 
-if [[ "$1" == "init" ]]; then
+if [[ "${1}" == "init" ]]; then
     f_init;
-elif [[ "$1" == "add-agent" ]]; then
-    f_add_agent "$2";
-elif [[ "$1" == "remove-agent" ]]; then
-    f_remove_agent "$2";
-elif [[ "$1" == "agents-list" ]]; then
+elif [[ "${1}" == "add-agent" ]]; then
+    f_add_agent "${2}";
+elif [[ "${1}" == "remove-agent" ]]; then
+    f_remove_agent "${2}";
+elif [[ "${1}" == "agents-list" ]]; then
     f_agents_list;
-elif [[ "$1" == "agents-test" ]]; then
+elif [[ "${1}" == "agents-test" ]]; then
     f_agents_test;
-elif [[ "$1" == "build" ]]; then
-    f_build "$2";
+elif [[ "${1}" == "build" ]]; then
+    f_build "${2}";
 else
     f_usage;
 fi;
