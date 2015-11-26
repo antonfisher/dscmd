@@ -53,7 +53,7 @@ for each applications {
 - [x] Show build progress;
 - [x] Support for multi-host add-agent command.
 - [x] Check application's build exit status;
-- [ ] Stop build after first fail;
+- [x] Stop build after first fail;
 - [ ] Show build time;
 - [ ] Script command suggestions.
 - [ ] Agent monitoring script.

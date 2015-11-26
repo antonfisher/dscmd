@@ -521,7 +521,7 @@ function f_build {
     build_exit_code=0;
     for application in "${APPLICATIONS_ARRAY[@]}"; do
         runned=0;
-        while [[ "${runned}" == 0 ]]; do
+        while [[ "${runned}" == 0 && "${build_exit_code}" == 0 ]]; do
             get_free_agent;
 
             if [[ -z "${get_free_agent_result}" ]]; then
@@ -535,7 +535,6 @@ function f_build {
                             wait "${pid}";
                             exit_code="${?}";
                             if [[ "${exit_code}" != 0 ]]; then
-                                echo -e "ERROR: '${application}' build failed, exit code: ${exit_code}.";
                                 build_exit_code="${exit_code}";
                             fi;
                         fi;
