@@ -20,6 +20,7 @@ AGENTS_FILE=".dscmd-agents";
 
 # --- global variables ---
 
+START_TIME=$(date +%s);
 CMD_PATH="";
 CMD_PATH_DAFAULT="~/bin/Sencha/Cmd/sencha";
 APPS_PATH="";
@@ -84,6 +85,28 @@ function check_directory_exits {
 function ls_directory {
     ls_directory_result=$( ls -m ./pages | sed 's#, #,#g' | tr -d '\n' );
     return "${?}";
+}
+
+##
+# Convert seconds to human format
+# $1 - duration in seconds
+#
+function seconds_to_duration {
+    s="${1}";
+    h=$((s/60/60%24))
+    m=$((s/60%60))
+    s=$((s%60))
+    seconds_to_duration_result="";
+
+    if [[ "${h}" != 0 ]]; then
+        seconds_to_duration_result="${h} hour(s) ";
+    fi;
+
+    if [[ "${m}" != 0 || "${h}" != 0 ]]; then
+        seconds_to_duration_result="${seconds_to_duration_result}${m} minute(s) ";
+    fi;
+
+    seconds_to_duration_result="${seconds_to_duration_result}${s} second(s)";
 }
 
 # --- util functions ---
@@ -552,10 +575,13 @@ function f_build {
 
     wait;
 
+    seconds_to_duration "$(($(date +%s)-START_TIME))";
+    echo -e "\nDuration time: ${seconds_to_duration_result}";
+
     if [[ "${build_exit_code}" != 0 ]]; then
-        echo -e "\nBUILD FAILED (exit code: ${build_exit_code}).\n";
+        echo -e "BUILD FAILED (exit code: ${build_exit_code}).\n";
     else
-        echo -e "\nDone.\n";
+        echo -e "Done.\n";
     fi;
 }
 

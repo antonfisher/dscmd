@@ -53,7 +53,7 @@ for each applications {
 * 0.1.0 Initial release.
 
 ## ToDo
-- [ ] Show build time;
+- [x] Show build time;
 - [ ] Script command suggestions;
 - [ ] Agent monitoring script.
 
