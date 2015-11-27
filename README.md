@@ -4,18 +4,17 @@
 
 ```
 $./dscmd.sh 
-Build distribution tool for SenchaCMD v0.1.1 [beta]
+Build distribution tool for SenchaCMD v0.1.2 [beta]
 Usage:
   ./dscmd.sh init
   ./dscmd.sh add-agent
   ./dscmd.sh remove-agent [--all]
   ./dscmd.sh agents-list
   ./dscmd.sh agents-test
-  ./dscmd.sh build <application1,application2,...>
+  ./dscmd.sh build [--all] <application1,application2,...>
 ```
 
 ## Installation
-
 * Copy `dscmd.sh` script to your Sencha applications workspace;
 * Run `$./dscmd.sh init`.
 
