@@ -24,7 +24,7 @@ START_TIME=$(date +%s);
 CMD_PATH="";
 CMD_PATH_DAFAULT="~/bin/Sencha/Cmd/sencha";
 APPS_PATH="";
-APPS_PATH_DAFAULT="./pages";
+APPS_PATH_DAFAULT="pages";
 AGENT_FREE="1";
 AGENT_BUSY="2";
 #AGENT_ERROR="0";
@@ -290,7 +290,7 @@ function run_build_on_agent {
 
 # --- tool usage functions ---
 
-function f_init {
+function f_config {
     echo -e "Master initialization.\n";
 
     local text;
@@ -302,7 +302,8 @@ function f_init {
 
     unset valid_directory;
     while [[ -z "${valid_directory}" ]]; do
-        text="Enter path to applications folder (default: ${APPS_PATH_DAFAULT} or previous uses) [ENTER]: ";
+        text="Enter path to applications folder";
+        text="$text (default: '${APPS_PATH_DAFAULT}' or previous uses '${APPS_PATH}') [ENTER]: ";
         read -r -e -p "${text}" apps_path_user;
         get_full_file_path "${apps_path_user}";
         if [[ -z "${apps_path_user}" ]]; then
@@ -320,7 +321,7 @@ function f_init {
     done;
     apps_path_user="${apps_path_user%/}";
     ls_directory "${apps_path_user}";
-    echo -e "Found applications in '${apps_path_user}': ${ls_directory_result}";
+    echo -e "Found applications in '${apps_path_user}': ${ls_directory_result}\n";
 
     unset valid_directory;
     while [[ -z "${valid_directory}" ]]; do
@@ -587,7 +588,7 @@ function f_build {
 
 function f_usage {
     echo -e "Usage:";
-    echo -e "  ./dscmd.sh init";
+    echo -e "  ./dscmd.sh config";
     echo -e "  ./dscmd.sh add-agent";
     echo -e "  ./dscmd.sh remove-agent [--all]";
     echo -e "  ./dscmd.sh agents-list";
@@ -597,8 +598,8 @@ function f_usage {
 
 # --- main ---
 
-if [[ "${1}" == "init" ]]; then
-    f_init;
+if [[ "${1}" == "config" ]]; then
+    f_config;
 elif [[ "${1}" == "add-agent" ]]; then
     f_add_agent "${2}";
 elif [[ "${1}" == "remove-agent" ]]; then

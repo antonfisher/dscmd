@@ -3,10 +3,10 @@
 ![Principle pic](https://github.com/antonfisher/dscmd/raw/master/docs/dscmd-principle.png)
 
 ```
-$./dscmd.sh 
+$./dscmd.sh
 Build distribution tool for SenchaCMD v0.1.2 [beta]
 Usage:
-  ./dscmd.sh init
+  ./dscmd.sh config
   ./dscmd.sh add-agent
   ./dscmd.sh remove-agent [--all]
   ./dscmd.sh agents-list
@@ -16,7 +16,7 @@ Usage:
 
 ## Installation
 * Copy `dscmd.sh` script to your Sencha applications workspace;
-* Run `$./dscmd.sh init`.
+* Run `$./dscmd.sh config`.
 
 ## Usage
 
@@ -41,21 +41,25 @@ for each applications {
 
 ## Release History
 * 0.1.2 Beta release:
-    * Configurable application path;
-    * Show list of applications after script init;
-    * Show build progress;
-    * Support for multi-host add-agent command;
-    * Check application's build exit status;
-    * Stop build after first fail;
+    * Configurable application path
+    * Show list of applications after script init
+    * Show build progress
+    * Support for multi-host add-agent command
+    * Check application's build exit status
+    * Stop build after first fail
 * 0.1.1 Beta release:
-    * Support `build --all` flag;
-    * Fix: `add-agent`;
+    * Support `build --all` flag
+    * Fix: `add-agent`
 * 0.1.0 Initial release.
 
 ## ToDo
-- [x] Show build time;
-- [ ] Script command suggestions;
-- [ ] Agent monitoring script.
+- [x] Show build time
+- [x] Rename init -> config
+- [ ] Add agent, ssh-key copying action confirmation
+- [ ] Add agent, apt-get update confirmation
+- [ ] Agent monitoring script
+- [ ] Show applicaiton list command
+- [ ] Script command completion.
 
 ## License
 Copyright (c) 2015 Anton Fisher <a.fschr@gmail.com>
