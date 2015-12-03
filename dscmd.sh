@@ -83,7 +83,7 @@ function check_directory_exits {
 }
 
 function ls_directory {
-    ls_directory_result=$( ls -m ./pages | sed 's#, #,#g' | tr -d '\n' );
+    ls_directory_result=$( ls -m "$1" | sed 's#, #,#g' | tr -d '\n' );
     return "${?}";
 }
 
@@ -345,6 +345,16 @@ function f_config {
     cat "${CONFIG_FILE}";
 }
 
+function f_applications_list {
+    echo -e "Applicaitons list will be used for build:";
+
+    read_config_file;
+
+    ls_directory "${APPS_PATH}";
+
+    echo -e "${ls_directory_result}\n";
+}
+
 function f_add_agent {
     echo -e "Add agent wizard.\n";
 
@@ -589,6 +599,7 @@ function f_build {
 function f_usage {
     echo -e "Usage:";
     echo -e "  ./dscmd.sh config";
+    echo -e "  ./dscmd.sh applications-list";
     echo -e "  ./dscmd.sh add-agent";
     echo -e "  ./dscmd.sh remove-agent [--all]";
     echo -e "  ./dscmd.sh agents-list";
@@ -600,6 +611,8 @@ function f_usage {
 
 if [[ "${1}" == "config" ]]; then
     f_config;
+elif [[ "${1}" == "applications-list" ]]; then
+    f_applications_list;
 elif [[ "${1}" == "add-agent" ]]; then
     f_add_agent "${2}";
 elif [[ "${1}" == "remove-agent" ]]; then

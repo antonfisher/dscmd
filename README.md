@@ -7,6 +7,7 @@ $./dscmd.sh
 Build distribution tool for SenchaCMD v0.1.2 [beta]
 Usage:
   ./dscmd.sh config
+  ./dscmd.sh applications-list
   ./dscmd.sh add-agent
   ./dscmd.sh remove-agent [--all]
   ./dscmd.sh agents-list
@@ -50,16 +51,16 @@ for each applications {
 * 0.1.1 Beta release:
     * Support `build --all` flag
     * Fix: `add-agent`
-* 0.1.0 Initial release.
+* 0.1.0 Initial release
 
 ## ToDo
 - [x] Show build time
 - [x] Rename init -> config
+- [x] Show applicaiton list command
 - [ ] Add agent, ssh-key copying action confirmation
 - [ ] Add agent, apt-get update confirmation
-- [ ] Agent monitoring script
-- [ ] Show applicaiton list command
-- [ ] Script command completion.
+- [ ] Agent monitoring script (separate project)
+- [ ] Script commands completion
 
 ## License
 Copyright (c) 2015 Anton Fisher <a.fschr@gmail.com>
