@@ -55,10 +55,12 @@ function get_full_file_path {
     local user_home;
     local user_home_sed;
     local rel_path;
+    local result;
     user_home="${HOME//\//\\\/}";
     user_home_sed="s#~#${user_home}#g";
     rel_path=$( echo "${1}" | sed "${user_home_sed}" );
-    get_full_file_path_result=$( readlink -e "${rel_path}" );
+    result=$( readlink -e "${rel_path}" );
+    echo "${result}";
 }
 
 ##
@@ -96,17 +98,17 @@ function seconds_to_duration {
     h=$((s/60/60%24))
     m=$((s/60%60))
     s=$((s%60))
-    seconds_to_duration_result="";
+    local result="";
 
     if [[ "${h}" != 0 ]]; then
-        seconds_to_duration_result="${h} hour(s) ";
+        result="${h} hour(s) ";
     fi;
 
     if [[ "${m}" != 0 || "${h}" != 0 ]]; then
-        seconds_to_duration_result="${seconds_to_duration_result}${m} minute(s) ";
+        result="${result}${m} minute(s) ";
     fi;
 
-    seconds_to_duration_result="${seconds_to_duration_result}${s} second(s)";
+    echo "${result}${s} second(s)";
 }
 
 # --- util functions ---
@@ -204,6 +206,7 @@ function get_free_agent {
     for agent in "${AGENTS_ARRAY[@]}"; do
         if [[ "${AGENTS_STATUSES_ARRAY[$i]}" == "${AGENT_FREE}" ]]; then
             get_free_agent_result="${i}";
+            break;
         fi;
         i=$((i+1));
     done;
@@ -305,7 +308,7 @@ function f_config {
         text="Enter path to applications folder";
         text="$text (default: '${APPS_PATH_DAFAULT}' or previous uses '${APPS_PATH}') [ENTER]: ";
         read -r -e -p "${text}" apps_path_user;
-        get_full_file_path "${apps_path_user}";
+        full_file_path=$(get_full_file_path "${apps_path_user}");
         if [[ -z "${apps_path_user}" ]]; then
             valid_directory=1;
             if [[ -z "${APPS_PATH}" ]]; then
@@ -314,8 +317,8 @@ function f_config {
                 apps_path_user="${APPS_PATH}";
             fi;
         elif [[ "${apps_path_user}" == .* || "${apps_path_user}" == /* || "${apps_path_user}" == ~* ]]; then
-            echo -e "ERROR: only local directories allowed...";
-        elif check_directory_exits "${get_full_file_path_result}" 1; then
+            echo -e "ERROR: only local directories allowed (without './')...";
+        elif check_directory_exits "${full_file_path}" 1; then
             valid_directory=1;
         fi;
     done;
@@ -394,8 +397,7 @@ function f_add_agent {
     local install_script_realpath;
     install_script_basename=$(basename "${install_script_path}");
     install_script_extension="${install_script_basename##*.}";
-    get_full_file_path "${install_script_path}";
-    install_script_realpath="${get_full_file_path_result}";
+    install_script_realpath=$(get_full_file_path "${install_script_path}");
 
     if [[ "${install_script_extension}" != "sh" ]] ; then
         echo "ERROR: file ${install_script_realpath} is not executable (*.sh).";
@@ -586,8 +588,8 @@ function f_build {
 
     wait;
 
-    seconds_to_duration "$(($(date +%s)-START_TIME))";
-    echo -e "\nDuration time: ${seconds_to_duration_result}";
+    duration_time=$(seconds_to_duration "$(($(date +%s)-START_TIME))");
+    echo -e "\nDuration time: ${duration_time}";
 
     if [[ "${build_exit_code}" != 0 ]]; then
         echo -e "BUILD FAILED (exit code: ${build_exit_code}).\n";
