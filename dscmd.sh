@@ -41,17 +41,15 @@ AGENTS_ARRAY_COUNT=0;
 ##
 # Get full file/directory path
 #
-# $1 {String} - relative path
-#
-# @returns {String} in variable bash 'get_full_path_result'
-#
 # Examples:
+#   full_path=$(get_full_path '/tmp');       # /tmp
+#   full_path=$(get_full_path '~/..');       # /home
+#   full_path=$(get_full_path '../../../');  # /home
 #
-#   get_full_path '/tmp' && echo "$get_full_path_result";       # /tmp
-#   get_full_path '~/..' && echo "$get_full_path_result";       # /home
-#   get_full_path '../../../' && echo "$get_full_path_result";  # /home
+# @param {String} $1 - relative path
+# @returns {String} absolute path
 #
-function get_full_file_path {
+function get_full_path {
     local user_home;
     local user_home_sed;
     local rel_path;
@@ -308,7 +306,7 @@ function f_config {
         text="Enter path to applications folder";
         text="$text (default: '${APPS_PATH_DAFAULT}' or previous uses '${APPS_PATH}') [ENTER]: ";
         read -r -e -p "${text}" apps_path_user;
-        full_file_path=$(get_full_file_path "${apps_path_user}");
+        full_path=$(get_full_path "${apps_path_user}");
         if [[ -z "${apps_path_user}" ]]; then
             valid_directory=1;
             if [[ -z "${APPS_PATH}" ]]; then
@@ -318,7 +316,7 @@ function f_config {
             fi;
         elif [[ "${apps_path_user}" == .* || "${apps_path_user}" == /* || "${apps_path_user}" == ~* ]]; then
             echo -e "ERROR: only local directories allowed (without './')...";
-        elif check_directory_exits "${full_file_path}" 1; then
+        elif check_directory_exits "${full_path}" 1; then
             valid_directory=1;
         fi;
     done;
@@ -397,7 +395,7 @@ function f_add_agent {
     local install_script_realpath;
     install_script_basename=$(basename "${install_script_path}");
     install_script_extension="${install_script_basename##*.}";
-    install_script_realpath=$(get_full_file_path "${install_script_path}");
+    install_script_realpath=$(get_full_path "${install_script_path}");
 
     if [[ "${install_script_extension}" != "sh" ]] ; then
         echo "ERROR: file ${install_script_realpath} is not executable (*.sh).";
