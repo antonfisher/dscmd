@@ -57,8 +57,8 @@ for each applications {
 - [x] Show build time
 - [x] Rename init -> config
 - [x] Show applicaiton list command
-- [ ] Add agent, ssh-key copying action confirmation
-- [ ] Add agent, apt-get update confirmation
+- [x] Add agent, ssh-key copying action confirmation
+- [x] Add agent, apt-get update confirmation
 - [ ] Agent monitoring script (separate project)
 - [ ] Script commands completion
 

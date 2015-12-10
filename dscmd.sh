@@ -361,7 +361,7 @@ function f_add_agent {
 
     unset hosts_list;
     while [[ -z "${hosts_list}" ]]; do
-        read -r -p "Enter agent ip or host (use ',' to add few agents with same username)[ENTER]: " hosts_list;
+        read -r -p "Enter agent ip or host (use ',' to add few agents with same username) [ENTER]: " hosts_list;
     done;
 
     unset username;
@@ -402,31 +402,54 @@ function f_add_agent {
         exit 1;
     fi;
 
+    read -r -p "Copy ssh key to agent using ssh-copy-id (Y/n) [ENTER]: " skip_copy_ssh_key;
+    if [[ "${skip_copy_ssh_key}" =~ ^([yY][eE][sS]|[yY])$ ]]; then
+        unset skip_copy_ssh_key;
+    fi;
+
+    read -r -p "Apt-get update and upgrade agent (Y/n) [ENTER]: " skip_apt_get_update;
+    if [[ "${skip_apt_get_update}" =~ ^([yY][eE][sS]|[yY])$ ]]; then
+        unset skip_apt_get_update;
+    fi;
+
+    read -r -p "Install Java and Ruby (Y/n) [ENTER]: " skip_install_dependencies;
+    if [[ "${skip_install_dependencies}" =~ ^([yY][eE][sS]|[yY])$ ]]; then
+        unset skip_install_dependencies;
+    fi;
+
     read_config_file;
+
+    echo -e "Start...";
 
     for host in "${hosts_array[@]}"; do
         read_agents_list;
 
-        echo -e "Copy key to agent ${username}@${host}...";
-        ssh-copy-id "${username}@${host}"; #> /dev/null;
-        if [[ "${?}" != 0 ]]; then
-            echo "ERROR: failed ssh connection to ${username}@${host}.";
-            echo "How to create ssh key: https://www.digitalocean.com/community/tutorials/how-to-set-up-ssh-keys--2";
-            exit 1;
+        if [[ -z "${skip_copy_ssh_key}" ]]; then
+            echo -e "Copy key to agent ${username}@${host}...";
+            ssh-copy-id "${username}@${host}"; #> /dev/null;
+            if [[ "${?}" != 0 ]]; then
+                echo "ERROR: failed ssh connection to ${username}@${host}.";
+                echo "How to create ssh key: https://www.digitalocean.com/community/tutorials/how-to-set-up-ssh-keys--2";
+                exit 1;
+            fi;
         fi;
 
-        echo -e "Upgrade system on ${username}@${host}...";
-        ssh -Ct "${username}@${host}" "sudo apt-get update && sudo apt-get -y upgrade";
-        if [[ "${?}" != 0 ]]; then
-            echo "ERROR: failed upgrade system.";
-            exit 1;
+        if [[ -z "${skip_apt_get_update}" ]]; then
+            echo -e "Upgrade system on ${username}@${host}...";
+            ssh -Ct "${username}@${host}" "sudo apt-get update && sudo apt-get -y upgrade";
+            if [[ "${?}" != 0 ]]; then
+                echo "ERROR: failed upgrade system.";
+                exit 1;
+            fi;
         fi;
 
-        echo -e "Install 'openjdk-7-jre ruby' on ${username}@${host}...";
-        ssh -Ct "${username}@${host}" "sudo apt-get -y install openjdk-7-jre ruby";
-        if [[ "${?}" != 0 ]]; then
-            echo "ERROR: failed install Java and Ruby.";
-            exit 1;
+        if [[ -z "${skip_install_dependencies}" ]]; then
+            echo -e "Install 'openjdk-7-jre ruby' on ${username}@${host}...";
+            ssh -Ct "${username}@${host}" "sudo apt-get -y install openjdk-7-jre ruby";
+            if [[ "${?}" != 0 ]]; then
+                echo "ERROR: failed install Java and Ruby.";
+                exit 1;
+            fi;
         fi;
 
         echo -e "Create 'dscmd' folder on ${username}@${host}...";
