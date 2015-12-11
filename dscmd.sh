@@ -260,10 +260,11 @@ function run_build_on_agent {
         subprocess_exit_code=0;
 
         if [[ "${subprocess_exit_code}" == 0 ]]; then
+            echo -e "Syncronize local directory with agent...";
             rsync_agent "${agent}";
             subprocess_exit_code="${?}";
             if [[ "${subprocess_exit_code}" != 0 ]]; then
-                echo "ERROR: failed rsync '${2}' from local folder to ${agent} (local --X--> agent).";
+                echo -e "ERROR: failed rsync '${2}' from local folder to ${agent} (local --X--> agent).";
             fi;
         fi;
 
@@ -271,7 +272,7 @@ function run_build_on_agent {
             ssh -Cq "${agent}" "cd ~/dscmd/${APPS_PATH}/${2}; ${CMD_PATH} --plain --quiet --time app build;";
             subprocess_exit_code="${?}";
             if [[ "${subprocess_exit_code}" != 0 ]]; then
-                echo "ERROR: failed build application '${2}' on ${agent}.";
+                echo -e "ERROR: failed build application '${2}' on ${agent}.";
             fi;
         fi;
 
@@ -279,7 +280,7 @@ function run_build_on_agent {
             rsync_local_folder "${agent}" "build/production/${2^}";
             subprocess_exit_code="${?}";
             if [[ "${subprocess_exit_code}" != 0 ]]; then
-                echo "ERROR: failed rsync '${2}' from ${agent} to local folder (local <--X-- agent).";
+                echo -e "ERROR: failed rsync '${2}' from ${agent} to local folder (local <--X-- agent).";
             fi;
         fi;
 
@@ -398,7 +399,7 @@ function f_add_agent {
     install_script_realpath=$(get_full_path "${install_script_path}");
 
     if [[ "${install_script_extension}" != "sh" ]] ; then
-        echo "ERROR: file ${install_script_realpath} is not executable (*.sh).";
+        echo -e "ERROR: file ${install_script_realpath} is not executable (*.sh).";
         exit 1;
     fi;
 
@@ -428,8 +429,8 @@ function f_add_agent {
             echo -e "Copy key to agent ${username}@${host}...";
             ssh-copy-id "${username}@${host}"; #> /dev/null;
             if [[ "${?}" != 0 ]]; then
-                echo "ERROR: failed ssh connection to ${username}@${host}.";
-                echo "How to create ssh key: https://www.digitalocean.com/community/tutorials/how-to-set-up-ssh-keys--2";
+                echo -e "ERROR: failed ssh connection to ${username}@${host}.";
+                echo -e "How to create ssh key: https://www.digitalocean.com/community/tutorials/how-to-set-up-ssh-keys--2";
                 exit 1;
             fi;
         fi;
@@ -438,7 +439,7 @@ function f_add_agent {
             echo -e "Upgrade system on ${username}@${host}...";
             ssh -Ct "${username}@${host}" "sudo apt-get update && sudo apt-get -y upgrade";
             if [[ "${?}" != 0 ]]; then
-                echo "ERROR: failed upgrade system.";
+                echo -e "ERROR: failed upgrade system.";
                 exit 1;
             fi;
         fi;
@@ -447,7 +448,7 @@ function f_add_agent {
             echo -e "Install 'openjdk-7-jre ruby' on ${username}@${host}...";
             ssh -Ct "${username}@${host}" "sudo apt-get -y install openjdk-7-jre ruby";
             if [[ "${?}" != 0 ]]; then
-                echo "ERROR: failed install Java and Ruby.";
+                echo -e "ERROR: failed install Java and Ruby.";
                 exit 1;
             fi;
         fi;
@@ -455,28 +456,28 @@ function f_add_agent {
         echo -e "Create 'dscmd' folder on ${username}@${host}...";
         ssh -Ct "${username}@${host}" "mkdir -p dscmd";
         if [[ "${?}" != 0 ]]; then
-            echo "ERROR: failed create folder.";
+            echo -e "ERROR: failed create folder.";
             exit 1;
         fi;
 
         echo -e "Copy SenchaCMD installation script (${install_script_realpath}) to ${username}@${host}:~/dscmd ...";
         scp "${install_script_realpath}" "${username}@${host}:~/dscmd";
         if [[ "${?}" != 0 ]]; then
-            echo "ERROR: failed copy SenchaCMD installation script.";
+            echo -e "ERROR: failed copy SenchaCMD installation script.";
             exit 1;
         fi;
 
         echo -e "Run SenchaCMD installation script on ${username}@${host}...";
         ssh -Ct "${username}@${host}" "cd ~/dscmd; bash ./${install_script_basename}";
         if [[ "${?}" != 0 ]]; then
-            echo "ERROR: failed run SenchaCMD installation script.";
+            echo -e "ERROR: failed run SenchaCMD installation script.";
             exit 1;
         fi;
 
         echo -e "Syncronize directory with ${username}@${host}:/dscmd...";
         rsync_agent "${username}@${host}";
         if [[ "${?}" != 0 ]]; then
-            echo "ERROR: failed sync with ${username}@${host}:/dscmd.";
+            echo -e "ERROR: failed sync with ${username}@${host}:/dscmd.";
             exit 1;
         fi;
 
@@ -485,14 +486,14 @@ function f_add_agent {
         save_agents_list;
     done;
 
-    echo "Done.";
+    echo -e "Done.";
 }
 
 function f_remove_agent {
     echo -e "Remove agent.";
 
     if [[ -z "${1}" ]]; then
-        echo "ERROR: host missed.";
+        echo -e "ERROR: host missed.";
         exit 1;
     fi;
 
