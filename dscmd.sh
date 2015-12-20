@@ -46,8 +46,9 @@ AGENTS_ARRAY_COUNT=0;
 #   full_path=$(get_full_path '~/..');       # /home
 #   full_path=$(get_full_path '../../../');  # /home
 #
-# @param {String} $1 - relative path
-# @returns {String} absolute path
+# $1 - relative path
+#
+# Returns: absolute path
 #
 function get_full_path {
     local user_home;
@@ -63,13 +64,14 @@ function get_full_path {
 
 ##
 # Check directory
-# $1 {String} - path
-# $2 {Number} - show error
-#
-# @returns {Number} 0 - exists / 1 - not exists
 #
 # Example:
 #   check_directory_exits /tmp 1;
+#
+# $1 - directory path
+# $2 - show error
+#
+# Returns: 0 - exists / 1 - not exists
 #
 function check_directory_exits {
     if [[ -d "${1}" ]]; then
@@ -82,6 +84,9 @@ function check_directory_exits {
     fi;
 }
 
+##
+# $1 - directory path
+#
 function ls_directory {
     ls_directory_result=$( ls -m "$1" | sed 's#, #,#g' | tr -d '\n' );
     return "${?}";
@@ -89,6 +94,7 @@ function ls_directory {
 
 ##
 # Convert seconds to human format
+#
 # $1 - duration in seconds
 #
 function seconds_to_duration {
@@ -119,6 +125,9 @@ function read_config_file {
     done < "${CONFIG_FILE}";
 }
 
+##
+# $1 - new config string
+#
 function save_config_file {
     touch "${CONFIG_FILE}";
     echo -e "${1}" > "${CONFIG_FILE}";
@@ -159,16 +168,25 @@ function save_agents_list {
     fi;
 }
 
+##
+# $1 - agent config string (10.0.0.11:user ---> parse_agent_result=['user', '10.0.0.11'])
+#
 function parse_agent {
     IFS=':';
     read -r -a parse_agent_result <<< "${1}";
 }
 
+##
+# $1 - agent address (user@10.0.0.11)
+#
 function check_ssh_agent {
     ssh -o ConnectTimeout=10 "${1}" "exit"; #> /dev/null;
     return "${?}";
 }
 
+##
+# $1 - agent address (user@10.0.0.11)
+#
 function rsync_agent {
     rsync \
         -az \
@@ -183,6 +201,10 @@ function rsync_agent {
     return "${?}";
 }
 
+##
+# $1 - agent address (user@10.0.0.11)
+# $2 - application folder
+#
 function rsync_local_folder {
     rsync \
         -az \
@@ -197,6 +219,9 @@ function rsync_local_folder {
     return "${?}";
 }
 
+##
+# Returns: free arent index
+#
 function get_free_agent {
     unset get_free_agent_result;
 
@@ -210,27 +235,27 @@ function get_free_agent {
     done;
 }
 
-#
-# @param {Number} $1 agent index
+##
+# $1 - agent index
 #
 function set_agent_free {
     AGENTS_PIDS_ARRAY["${1}"]=0;
     AGENTS_STATUSES_ARRAY["${1}"]="${AGENT_FREE}";
 }
 
-#
-# @param {Number} $1 agent index
-# @param {Number} $2 agent process pid
+##
+# $1 - agent index
+# $2 - agent process pid
 #
 function set_agent_busy {
     AGENTS_PIDS_ARRAY["${1}"]="${2}";
     AGENTS_STATUSES_ARRAY["${1}"]="${AGENT_BUSY}";
 }
 
-#
-# @param {Number} $1 agent index
-# @param {String} $2 application name
-# @param {Number} $3 application index
+##
+# $1 - agent index
+# $2 - application name
+# $3 - application index
 #
 function run_build_on_agent {
     local application;
@@ -489,6 +514,9 @@ function f_add_agent {
     echo -e "Done.";
 }
 
+##
+# $1 - config '--all' or none
+#
 function f_remove_agent {
     echo -e "Remove agent.";
 
@@ -543,6 +571,9 @@ function f_agents_test {
     done;
 }
 
+##
+# $1 - application list or '--all' flag
+#
 function f_build {
     echo -e "Build applications:\n";
 
@@ -638,7 +669,7 @@ if [[ "${1}" == "config" ]]; then
 elif [[ "${1}" == "applications-list" ]]; then
     f_applications_list;
 elif [[ "${1}" == "add-agent" ]]; then
-    f_add_agent "${2}";
+    f_add_agent;
 elif [[ "${1}" == "remove-agent" ]]; then
     f_remove_agent "${2}";
 elif [[ "${1}" == "agents-list" ]]; then

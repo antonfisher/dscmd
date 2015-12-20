@@ -15,6 +15,11 @@ Usage:
   ./dscmd.sh build [--all] <application1,application2,...>
 ```
 
+## Result on Jenkins builds chart
+![Result](https://github.com/antonfisher/dscmd/raw/master/docs/dscmd-jenkins-builds-chart.png)
+
+__Note:__ 2 distributed VMs used instead one master.
+
 ## Installation
 * Copy `dscmd.sh` script to your Sencha applications workspace;
 * Run `$./dscmd.sh config`.
@@ -59,8 +64,7 @@ for each applications {
 - [x] Show applicaiton list command
 - [x] Add agent, ssh-key copying action confirmation
 - [x] Add agent, apt-get update confirmation
-- [ ] Agent monitoring script (separate project)
-- [ ] Script commands completion
+- [ ] Script commands completion(?)
 
 ## License
 Copyright (c) 2015 Anton Fisher <a.fschr@gmail.com>
