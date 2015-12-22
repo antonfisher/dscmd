@@ -2,6 +2,17 @@
 
 ![Principle pic](https://github.com/antonfisher/dscmd/raw/master/docs/dscmd-principle.png)
 
+## Result on Jenkins builds chart
+![Result](https://github.com/antonfisher/dscmd/raw/master/docs/dscmd-jenkins-builds-chart.png)
+
+__Note:__ 3 distributed VMs used instead one master.
+
+## Installation
+* Copy `dscmd.sh` script to your Sencha applications workspace;
+* Run `$./dscmd.sh config`.
+
+## Usage
+
 ```
 $./dscmd.sh
 Build distribution tool for SenchaCMD v0.1.2 [beta]
@@ -14,17 +25,6 @@ Usage:
   ./dscmd.sh agents-test
   ./dscmd.sh build [--all] <application1,application2,...>
 ```
-
-## Result on Jenkins builds chart
-![Result](https://github.com/antonfisher/dscmd/raw/master/docs/dscmd-jenkins-builds-chart.png)
-
-__Note:__ 2 distributed VMs used instead one master.
-
-## Installation
-* Copy `dscmd.sh` script to your Sencha applications workspace;
-* Run `$./dscmd.sh config`.
-
-## Usage
 
 ### Add agents (Ubuntu-based host)
 * [Copy ssh key](https://www.digitalocean.com/community/tutorials/how-to-set-up-ssh-keys--2) to agent;
