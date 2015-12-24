@@ -1,15 +1,17 @@
 # Build distribution tool for SenchaCMD
 
-![Principle pic](https://github.com/antonfisher/dscmd/raw/master/docs/dscmd-principle.png)
+![Principle pic](https://raw.githubusercontent.com/antonfisher/dscmd/docs/images/dscmd-principle.png)
 
 ## Result on Jenkins builds chart
-![Result](https://github.com/antonfisher/dscmd/raw/master/docs/dscmd-jenkins-builds-chart.png)
+![Result](https://raw.githubusercontent.com/antonfisher/dscmd/docs/images/dscmd-jenkins-builds-chart.png)
 
 __Note:__ 3 distributed VMs used instead one master.
 
 ## Installation
 * Copy `dscmd.sh` script to your Sencha applications workspace;
-* Run `$ ./dscmd.sh config`.
+    * `wget https://raw.githubusercontent.com/antonfisher/dscmd/master/dscmd.sh -O dscmd.sh`
+    * `chmod +x dscmd.sh`
+* Run `$./dscmd.sh config`.
 
 ## Usage
 
