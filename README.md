@@ -9,12 +9,12 @@ __Note:__ 3 distributed VMs used instead one master.
 
 ## Installation
 * Copy `dscmd.sh` script to your Sencha applications workspace;
-* Run `$./dscmd.sh config`.
+* Run `$ ./dscmd.sh config`.
 
 ## Usage
 
 ```
-$./dscmd.sh
+$ ./dscmd.sh
 Build distribution tool for SenchaCMD v0.1.2 [beta]
 Usage:
   ./dscmd.sh config
@@ -28,11 +28,11 @@ Usage:
 
 ### Add agents (Ubuntu-based host)
 * [Copy ssh key](https://www.digitalocean.com/community/tutorials/how-to-set-up-ssh-keys--2) to agent;
-* Run `$./dscmd.sh add-agent`.
+* Run `$ ./dscmd.sh add-agent`.
 
 ### Run distributed build
-* Run `$./dscmd.sh build --all` to build all application in applications folder;
-* Or run `$./dscmd.sh build applicationName1,applicationName2`.
+* Run `$ ./dscmd.sh build --all` to build all application in applications folder;
+* Or run `$ ./dscmd.sh build applicationName1,applicationName2`.
 
 ## Under hood
 ```
