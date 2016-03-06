@@ -1,6 +1,7 @@
 # Build distribution tool for SenchaCMD
 
 ![Status](https://img.shields.io/badge/status-beta-blue.svg)
+
 ![Principle pic](https://raw.githubusercontent.com/antonfisher/dscmd/docs/images/dscmd-principle.png)
 
 ## Result on Jenkins builds chart
