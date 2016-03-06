@@ -1,5 +1,6 @@
 # Build distribution tool for SenchaCMD
 
+![Status](https://img.shields.io/badge/status-beta-blue.svg)
 ![Principle pic](https://raw.githubusercontent.com/antonfisher/dscmd/docs/images/dscmd-principle.png)
 
 ## Result on Jenkins builds chart
@@ -69,6 +70,6 @@ for each applications {
 - [ ] Script commands completion(?)
 
 ## License
-Copyright (c) 2015 Anton Fisher <a.fschr@gmail.com>
+Copyright (c) 2016 Anton Fisher <a.fschr@gmail.com>
 
 MIT License. Free use and change.
