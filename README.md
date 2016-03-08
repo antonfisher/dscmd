@@ -50,6 +50,12 @@ for each applications {
 ```
 
 ## Release History
+* 0.1.3 Beta release:
+    * Show build time
+    * Rename init -> config
+    * Show applicaiton list command
+    * Add agent, ssh-key copying action confirmation
+    * Add agent, apt-get update confirmation
 * 0.1.2 Beta release:
     * Configurable application path
     * Show list of applications after script init
@@ -63,11 +69,6 @@ for each applications {
 * 0.1.0 Initial release
 
 ## ToDo
-- [x] Show build time
-- [x] Rename init -> config
-- [x] Show applicaiton list command
-- [x] Add agent, ssh-key copying action confirmation
-- [x] Add agent, apt-get update confirmation
 - [ ] Script commands completion(?)
 
 ## License
