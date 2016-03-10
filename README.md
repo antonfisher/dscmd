@@ -69,6 +69,8 @@ for each applications {
 * 0.1.0 Initial release
 
 ## ToDo
+- [ ] Column formating for print output
+- [ ] Check exit code for each agent
 - [ ] Script commands completion(?)
 
 ## License
