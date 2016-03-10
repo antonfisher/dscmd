@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 #-------------------------------------------------------------------------------------
-# Build distribution tool for SenchaCMD v1.0.0
+# Build distribution tool for SenchaCMD
 # Anton Fisher <a.fschr@gmail.com>
 #
 #  app1 >--                 --> ssh node1 (sencha app build) --
@@ -11,7 +11,7 @@
 #
 #-------------------------------------------------------------------------------------
 
-echo -e "Build distribution tool for SenchaCMD v0.1.2 [beta]";
+echo -e "Build distribution tool for SenchaCMD v0.1.3 [beta]";
 
 # --- config ---
 
@@ -35,6 +35,7 @@ declare -a AGENTS_PIDS_ARRAY;
 declare -a APPLICATIONS_ARRAY;
 
 AGENTS_ARRAY_COUNT=0;
+APPLICATIONS_ARRAY_MAX_ITEM_LENGTH=0;
 
 # --- common functions ---
 
@@ -195,6 +196,7 @@ function rsync_agent {
         --delete-excluded \
         --exclude=/.dscmd-* \
         --exclude=dscmd.sh \
+        --timeout=30 \
         ./ "${1}:~/dscmd";
         #-azvP \
 
@@ -213,6 +215,7 @@ function rsync_local_folder {
         --delete-excluded \
         --exclude=/.dscmd-* \
         --exclude=dscmd.sh \
+        --timeout=30 \
         "${1}:~/dscmd/${2}/" ./"${2}";
         #-azvP \
 
@@ -276,8 +279,9 @@ function run_build_on_agent {
 
         if [[ "${subprocess_exit_code}" == "${line}" ]]; then
             index_f=$(printf "% 3d" "${index}");
-            echo -e "[build ${index_f}/${#APPLICATIONS_ARRAY[@]}: ${application}] ${line}";
-        else
+            postfix=$(printf -v t "%%0%ds" "${APPLICATIONS_ARRAY_MAX_ITEM_LENGTH}" && printf "${t}");
+            echo -e "[build ${index_f}/${#APPLICATIONS_ARRAY[@]}: ${application}${postfix:${#application}}] ${line}";
+        elif [[ "${subprocess_exit_code}" != "0" ]]; then
             agent_exit_code="${subprocess_exit_code}";
         fi;
     done < <(
@@ -594,6 +598,13 @@ function f_build {
 
     IFS=',' read -r -a APPLICATIONS_ARRAY <<< "${apps_list}";
 
+    # save max application name length for output formating
+    for application in "${APPLICATIONS_ARRAY[@]}"; do
+        if [[ "${#application}" -gt "${APPLICATIONS_ARRAY_MAX_ITEM_LENGTH}" ]]; then
+            APPLICATIONS_ARRAY_MAX_ITEM_LENGTH="${#application}";
+        fi;
+    done;
+
     read_agents_list;
 
     if [[ "${AGENTS_ARRAY_COUNT}" == "0" ]]; then
@@ -639,6 +650,7 @@ function f_build {
         index=$((index+1));
     done;
 
+    #wait by pids
     wait;
 
     duration_time=$(seconds_to_duration "$(($(date +%s)-START_TIME))");
