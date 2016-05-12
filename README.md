@@ -1,7 +1,7 @@
 # Build distribution tool for SenchaCMD
 
-![Version](https://img.shields.io/badge/version-0.1.3-green.svg)
-![Status](https://img.shields.io/badge/status-beta-blue.svg)
+![version](https://img.shields.io/badge/version-0.1.3-green.svg)
+![status](https://img.shields.io/badge/status-beta-lightgray.svg)
 
 ![Principle pic](https://raw.githubusercontent.com/antonfisher/dscmd/docs/images/dscmd-principle.png)
 
